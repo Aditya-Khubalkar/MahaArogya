@@ -1,0 +1,192 @@
+[
+  {
+    "id": "ext_01",
+    "text": "I have severe abdominal pain for two days",
+    "expected_symptoms": [
+      "abdominal_pain"
+    ]
+  },
+  {
+    "id": "ext_02",
+    "text": "Patient presents with high fever and severe headache",
+    "expected_symptoms": [
+      "fever",
+      "headache"
+    ]
+  },
+  {
+    "id": "ext_03",
+    "text": "Chest pain with shortness of breath since morning",
+    "expected_symptoms": [
+      "chest_pain",
+      "breathlessness"
+    ]
+  },
+  {
+    "id": "ext_04",
+    "text": "Experiencing vomiting and diarrhea for 24 hours",
+    "expected_symptoms": [
+      "vomiting",
+      "diarrhea"
+    ]
+  },
+  {
+    "id": "ext_05",
+    "text": "Complaining of dizziness and nausea",
+    "expected_symptoms": [
+      "dizziness",
+      "nausea"
+    ]
+  },
+  {
+    "id": "ext_06",
+    "text": "Patient has sore throat and cough",
+    "expected_symptoms": [
+      "cough",
+      "sore_throat"
+    ]
+  },
+  {
+    "id": "ext_07",
+    "text": "Burning sensation during urination",
+    "expected_symptoms": [
+      "burning_urination"
+    ]
+  },
+  {
+    "id": "ext_08",
+    "text": "Numbness in left arm and facial weakness",
+    "expected_symptoms": [
+      "numbness"
+    ]
+  },
+  {
+    "id": "ext_09",
+    "text": "Joint pain and swelling in knees",
+    "expected_symptoms": [
+      "joint_pain",
+      "swelling"
+    ]
+  },
+  {
+    "id": "ext_10",
+    "text": "Extreme fatigue and muscle weakness",
+    "expected_symptoms": [
+      "fatigue"
+    ]
+  },
+  {
+    "id": "ext_11",
+    "text": "मला ३ दिवसांपासून पोटात तीव्र दुखत आहे",
+    "expected_symptoms": [
+      "abdominal_pain"
+    ]
+  },
+  {
+    "id": "ext_12",
+    "text": "मला काल रात्रीपासून खूप ताप आला आहे आणि डोकेदुखी आहे",
+    "expected_symptoms": [
+      "fever",
+      "headache"
+    ]
+  },
+  {
+    "id": "ext_13",
+    "text": "माझ्या छातीत दुखतंय आणि श्वास घ्यायला त्रास होतोय",
+    "expected_symptoms": [
+      "chest_pain",
+      "breathlessness"
+    ]
+  },
+  {
+    "id": "ext_14",
+    "text": "कालपासून चार वेळा उलट्या झाल्या आहेत",
+    "expected_symptoms": [
+      "vomiting"
+    ]
+  },
+  {
+    "id": "ext_15",
+    "text": "मला चक्कर येत आहे आणि डोके दुखत आहे",
+    "expected_symptoms": [
+      "dizziness",
+      "headache"
+    ]
+  },
+  {
+    "id": "ext_16",
+    "text": "माझ्या घशात खवखव आहे आणि खोकला येतोय",
+    "expected_symptoms": [
+      "cough",
+      "sore_throat"
+    ]
+  },
+  {
+    "id": "ext_17",
+    "text": "दोन दिवसांपासून जुलाब थांबत नाहीत",
+    "expected_symptoms": [
+      "diarrhea"
+    ]
+  },
+  {
+    "id": "ext_18",
+    "text": "लघवी करताना खूप जळजळ होत आहे",
+    "expected_symptoms": [
+      "burning_urination"
+    ]
+  },
+  {
+    "id": "ext_19",
+    "text": "मुझे दो दिनों से पेट में तेज दर्द हो रहा है",
+    "expected_symptoms": [
+      "abdominal_pain"
+    ]
+  },
+  {
+    "id": "ext_20",
+    "text": "कल रात से तेज बुखार और सिरदर्द है",
+    "expected_symptoms": [
+      "fever",
+      "headache"
+    ]
+  },
+  {
+    "id": "ext_21",
+    "text": "छाती में भारीपन है और सांस लेने में तकलीफ हो रही है",
+    "expected_symptoms": [
+      "chest_pain",
+      "breathlessness"
+    ]
+  },
+  {
+    "id": "ext_22",
+    "text": "मुझे तीन बार उल्टी आ चुकी है और दस्त हैं",
+    "expected_symptoms": [
+      "vomiting",
+      "diarrhea"
+    ]
+  },
+  {
+    "id": "ext_23",
+    "text": "Majha pot don divas pasun khup dukhtay",
+    "expected_symptoms": [
+      "abdominal_pain"
+    ]
+  },
+  {
+    "id": "ext_24",
+    "text": "Mala tap ala ahe ani khokla ahe",
+    "expected_symptoms": [
+      "fever",
+      "cough"
+    ]
+  },
+  {
+    "id": "ext_25",
+    "text": "Chhati madhe pain ahe ani breathing problem ahe",
+    "expected_symptoms": [
+      "chest_pain",
+      "breathlessness"
+    ]
+  }
+]

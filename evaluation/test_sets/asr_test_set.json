@@ -1,0 +1,92 @@
+[
+  {
+    "id": "asr_en_01",
+    "lang": "en",
+    "reference": "I have severe abdominal pain for two days",
+    "audio_path": "data\\test\\asr_samples\\asr_en_01.wav"
+  },
+  {
+    "id": "asr_en_02",
+    "lang": "en",
+    "reference": "High fever and persistent cough since yesterday morning",
+    "audio_path": "data\\test\\asr_samples\\asr_en_02.wav"
+  },
+  {
+    "id": "asr_en_03",
+    "lang": "en",
+    "reference": "I am experiencing sharp chest pain and shortness of breath",
+    "audio_path": "data\\test\\asr_samples\\asr_en_03.wav"
+  },
+  {
+    "id": "asr_en_04",
+    "lang": "en",
+    "reference": "I vomited twice this afternoon and feel dehydrated",
+    "audio_path": "data\\test\\asr_samples\\asr_en_04.wav"
+  },
+  {
+    "id": "asr_en_05",
+    "lang": "en",
+    "reference": "Feeling very dizzy and lightheaded when standing up",
+    "audio_path": "data\\test\\asr_samples\\asr_en_05.wav"
+  },
+  {
+    "id": "asr_en_06",
+    "lang": "en",
+    "reference": "I have a sore throat and difficulty swallowing food",
+    "audio_path": "data\\test\\asr_samples\\asr_en_06.wav"
+  },
+  {
+    "id": "asr_en_07",
+    "lang": "en",
+    "reference": "Severe diarrhea and stomach cramps for twenty four hours",
+    "audio_path": "data\\test\\asr_samples\\asr_en_07.wav"
+  },
+  {
+    "id": "asr_en_08",
+    "lang": "en",
+    "reference": "Numbness and tingling sensation in my left hand",
+    "audio_path": "data\\test\\asr_samples\\asr_en_08.wav"
+  },
+  {
+    "id": "asr_en_09",
+    "lang": "en",
+    "reference": "Burning sensation during urination and frequent urge",
+    "audio_path": "data\\test\\asr_samples\\asr_en_09.wav"
+  },
+  {
+    "id": "asr_en_10",
+    "lang": "en",
+    "reference": "Extreme fatigue and body pain after physical exertion",
+    "audio_path": "data\\test\\asr_samples\\asr_en_10.wav"
+  },
+  {
+    "id": "asr_mr_01",
+    "lang": "en",
+    "reference": "My stomach is hurting severely for three days",
+    "audio_path": "data\\test\\asr_samples\\asr_mr_01.wav"
+  },
+  {
+    "id": "asr_mr_02",
+    "lang": "en",
+    "reference": "I have high fever and severe headache since last night",
+    "audio_path": "data\\test\\asr_samples\\asr_mr_02.wav"
+  },
+  {
+    "id": "asr_hi_01",
+    "lang": "en",
+    "reference": "Severe pain in chest and difficulty in breathing",
+    "audio_path": "data\\test\\asr_samples\\asr_hi_01.wav"
+  },
+  {
+    "id": "asr_hi_02",
+    "lang": "en",
+    "reference": "Vomiting and loose motions since two days",
+    "audio_path": "data\\test\\asr_samples\\asr_hi_02.wav"
+  },
+  {
+    "id": "asr_rm_01",
+    "lang": "en",
+    "reference": "Dizziness and nausea since morning",
+    "audio_path": "data\\test\\asr_samples\\asr_rm_01.wav"
+  }
+]

@@ -1,0 +1,177 @@
+{
+  "timestamp": "2026-08-16T19:46:37Z",
+  "asr_metrics": {
+    "sample_count": 15,
+    "mean_wer": "4.05%",
+    "mean_cer": "1.92%",
+    "mean_latency_sec": "0.211s",
+    "vram_used_mb": "1759.56 MB",
+    "vram_delta_mb": "76.0 MB"
+  },
+  "medical_extraction_metrics": {
+    "sample_count": 25,
+    "precision": "100.0%",
+    "recall": "100.0%",
+    "f1_score": "100.0%",
+    "mean_latency_ms": "0.35ms"
+  },
+  "standard_triage_metrics": {
+    "sample_count": 20,
+    "emergency_recall": "100.0%",
+    "specificity": "100.0%",
+    "overall_accuracy": "100.0%"
+  },
+  "edge_case_triage_audit": {
+    "sample_count": 18,
+    "exact_matches": 16,
+    "match_percentage": "88.9%",
+    "fail_safe_overtriage": "1 (5.6%)",
+    "fail_unsafe_undertriage": "1 (5.6%)",
+    "audit_details": [
+      {
+        "id": "edge_01",
+        "input_text": "Sharp chest pain that started right after eating a heavy spicy meal, worse when lying flat",
+        "gold_standard": "URGENT",
+        "predicted": "PRIORITY",
+        "safety_status": "[UNSAFE] UNDER-TRIAGE",
+        "clinical_rationale": "ESI Level 3 (URGENT). GERD/esophageal spasm is most likely, but acute chest pain requires timely evaluation to rule out ACS; non-emergent if hemodynamically stable without radiation."
+      },
+      {
+        "id": "edge_02",
+        "input_text": "Mild breathlessness after climbing 3 flights of stairs, fully resolved after 5 minutes of rest",
+        "gold_standard": "ROUTINE",
+        "predicted": "ROUTINE",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 5 (ROUTINE). Benign exertional dyspnea in a healthy individual that completely resolves with rest without hypoxia or chest discomfort."
+      },
+      {
+        "id": "edge_03",
+        "input_text": "Sudden sharp stabbing pain in left ribs when taking a deep breath, no pain at rest",
+        "gold_standard": "PRIORITY",
+        "predicted": "URGENT",
+        "safety_status": "[SAFE] OVER-TRIAGE",
+        "clinical_rationale": "ESI Level 4 (PRIORITY). Classic pleuritic/musculoskeletal pain (costochondritis). Non-cardiac, but warrants routine clinical assessment."
+      },
+      {
+        "id": "edge_04",
+        "input_text": "Just feeling a bit tired and a mild headache, but my words are coming out slurred since 20 minutes ago",
+        "gold_standard": "EMERGENCY",
+        "predicted": "EMERGENCY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 1/2 (EMERGENCY). Acute dysarthria/slurred speech represents an acute stroke signal (tPA window critical) despite mild headache."
+      },
+      {
+        "id": "edge_05",
+        "input_text": "Mild lower abdominal cramping and light spotting in a patient 8 weeks pregnant",
+        "gold_standard": "EMERGENCY",
+        "predicted": "EMERGENCY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 2 (EMERGENCY). Potential ruptured ectopic pregnancy or threatened abortion. High risk for rapid hemorrhagic shock."
+      },
+      {
+        "id": "edge_06",
+        "input_text": "Indigestion and mild nausea with cold sweating in a 62-year-old diabetic patient",
+        "gold_standard": "EMERGENCY",
+        "predicted": "EMERGENCY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 2 (EMERGENCY). Atypical silent myocardial infarction in elderly diabetic presenting as nausea/diaphoresis without overt chest pain."
+      },
+      {
+        "id": "edge_07",
+        "input_text": "High fever of 102.5 F in a 2-month-old infant, baby is lethargic and refusing feeds",
+        "gold_standard": "EMERGENCY",
+        "predicted": "EMERGENCY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 2 (EMERGENCY). Fever >= 100.4 F in infants <= 60 days requires immediate sepsis evaluation, lumbar puncture, and blood cultures."
+      },
+      {
+        "id": "edge_08",
+        "input_text": "High fever of 102.5 F in a 25-year-old healthy adult with runny nose and sore throat",
+        "gold_standard": "PRIORITY",
+        "predicted": "PRIORITY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 4 (PRIORITY). Uncomplicated viral syndrome in a healthy young adult. Stable vitals without red flags."
+      },
+      {
+        "id": "edge_09",
+        "input_text": "Moderate abdominal pain in 35yo with normal blood pressure (120/80) and normal oxygen (98%)",
+        "gold_standard": "PRIORITY",
+        "predicted": "PRIORITY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 3/4 (PRIORITY). Hemodynamically stable abdominal pain without rebound tenderness or systemic compromise."
+      },
+      {
+        "id": "edge_10",
+        "input_text": "Moderate abdominal pain in 35yo with low blood pressure (85/55) and high heart rate (125 bpm)",
+        "gold_standard": "EMERGENCY",
+        "predicted": "EMERGENCY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 2 (EMERGENCY). Hypotension (SBP < 90) + tachycardia (HR > 120) indicates septic shock, internal hemorrhage, or severe dehydration."
+      },
+      {
+        "id": "edge_11",
+        "input_text": "I don't feel good at all today, just feeling off",
+        "gold_standard": "ROUTINE",
+        "predicted": "ROUTINE",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 5 (ROUTINE). Underspecified input without focal symptoms or distress. Requires follow-up intake questioning."
+      },
+      {
+        "id": "edge_12",
+        "input_text": "Mild fever, petechial skin rash, and joint pain after returning from a rural area",
+        "gold_standard": "URGENT",
+        "predicted": "URGENT",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 2/3 (URGENT). Combination of fever, petechial rash, and arthralgia suggests Dengue hemorrhagic fever, meningococcemia, or viral exanthem."
+      },
+      {
+        "id": "edge_13",
+        "input_text": "Mild headache, neck stiffness, and light sensitivity (photophobia) for 6 hours",
+        "gold_standard": "EMERGENCY",
+        "predicted": "EMERGENCY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 2 (EMERGENCY). Classic meningeal triad (headache, nuchal rigidity, photophobia, fever) indicating potential acute bacterial meningitis."
+      },
+      {
+        "id": "edge_14",
+        "input_text": "Mild calf pain after a 14-hour international flight, leg feels slightly warm",
+        "gold_standard": "URGENT",
+        "predicted": "URGENT",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 3 (URGENT). High risk for Deep Vein Thrombosis (DVT) with risk of Pulmonary Embolism. Requires urgent Doppler ultrasound."
+      },
+      {
+        "id": "edge_15",
+        "input_text": "Mild shortness of breath with SpO2 of 91% on room air",
+        "gold_standard": "EMERGENCY",
+        "predicted": "EMERGENCY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 2 (EMERGENCY). Hypoxemia (SpO2 < 92%) represents acute respiratory compromise regardless of patient's subjective mild rating."
+      },
+      {
+        "id": "edge_16",
+        "input_text": "Severe throbbing headache with visual aura in a known migraine patient, normal vitals",
+        "gold_standard": "PRIORITY",
+        "predicted": "PRIORITY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 4 (PRIORITY). Typical severe migraine in known sufferer with stable neurological exam and normal vitals."
+      },
+      {
+        "id": "edge_17",
+        "input_text": "Mild vomiting after eating spoiled food 3 hours ago, no blood, normal vitals",
+        "gold_standard": "ROUTINE",
+        "predicted": "ROUTINE",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 5 (ROUTINE). Acute gastroenteritis / food poisoning without signs of dehydration or hemodynamic instability."
+      },
+      {
+        "id": "edge_18",
+        "input_text": "Sudden worst headache of my life ('thunderclap headache') developing in seconds",
+        "gold_standard": "EMERGENCY",
+        "predicted": "EMERGENCY",
+        "safety_status": "[OK] MATCH",
+        "clinical_rationale": "ESI Level 1/2 (EMERGENCY). Thunderclap onset headache is the classic presentation of Subarachnoid Hemorrhage (SAH) from ruptured aneurysm."
+      }
+    ]
+  }
+}

@@ -1,0 +1,142 @@
+[
+  {
+    "id": "trg_01",
+    "symptom": "chest_pain",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_02",
+    "symptom": "breathlessness",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_03",
+    "symptom": "hematemesis",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_04",
+    "symptom": "stroke_numbness",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_05",
+    "symptom": "pediatric_high_fever",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_06",
+    "symptom": "anaphylaxis_allergy",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_07",
+    "symptom": "trauma_bleeding",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_08",
+    "symptom": "unconscious",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_09",
+    "symptom": "seizure",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_10",
+    "symptom": "cyanosis_spo2",
+    "severity": "severe",
+    "is_emergency": true,
+    "expected_category": "EMERGENCY"
+  },
+  {
+    "id": "trg_11",
+    "symptom": "headache",
+    "severity": "mild",
+    "is_emergency": false,
+    "expected_category": "ROUTINE"
+  },
+  {
+    "id": "trg_12",
+    "symptom": "cough",
+    "severity": "mild",
+    "is_emergency": false,
+    "expected_category": "ROUTINE"
+  },
+  {
+    "id": "trg_13",
+    "symptom": "acidity",
+    "severity": "mild",
+    "is_emergency": false,
+    "expected_category": "ROUTINE"
+  },
+  {
+    "id": "trg_14",
+    "symptom": "rash",
+    "severity": "mild",
+    "is_emergency": false,
+    "expected_category": "ROUTINE"
+  },
+  {
+    "id": "trg_15",
+    "symptom": "back_pain",
+    "severity": "mild",
+    "is_emergency": false,
+    "expected_category": "ROUTINE"
+  },
+  {
+    "id": "trg_16",
+    "symptom": "abdominal_pain",
+    "severity": "severe",
+    "is_emergency": false,
+    "expected_category": "PRIORITY"
+  },
+  {
+    "id": "trg_17",
+    "symptom": "diarrhea",
+    "severity": "moderate",
+    "is_emergency": false,
+    "expected_category": "PRIORITY"
+  },
+  {
+    "id": "trg_18",
+    "symptom": "fever",
+    "severity": "moderate",
+    "is_emergency": false,
+    "expected_category": "PRIORITY"
+  },
+  {
+    "id": "trg_19",
+    "symptom": "vomiting",
+    "severity": "moderate",
+    "is_emergency": false,
+    "expected_category": "PRIORITY"
+  },
+  {
+    "id": "trg_20",
+    "symptom": "earache",
+    "severity": "mild",
+    "is_emergency": false,
+    "expected_category": "ROUTINE"
+  }
+]
