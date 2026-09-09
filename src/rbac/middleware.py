@@ -5,7 +5,7 @@ Returns HTTP 403 Forbidden for unauthorized role access.
 """
 
 from fastapi import HTTPException, status
-from src.rbac.models import AuthUser, Permission
+from src.rbac.models import AuthUser, Permission, UserRole
 
 
 def enforce_permission(user: AuthUser, required_permission: Permission):
@@ -25,7 +25,7 @@ def enforce_hospital_scope(user: AuthUser, target_hospital_id: str):
     Enforces that user is authorized for target_hospital_id (or has government multi-hospital scope).
     Raises HTTPException 403 Forbidden if out of scope.
     """
-    if user.role == "GOVERNMENT":
+    if user.role == UserRole.GOVERNMENT:
         return  # Government has state-wide aggregate access
 
     if user.hospital_id != target_hospital_id:

@@ -1,0 +1,522 @@
+[
+    {
+        "category": "Emergency",
+        "input": "I have severe chest pain and I am sweating and having difficulty breathing.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "My oxygen is 88 and I cannot breathe.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "Patient is unconscious and not responding.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "There is severe bleeding from my arm that won't stop.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I have sudden weakness on one side of my body and slurred speech.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I ate peanuts and now my throat is closing up and I can't breathe.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "My systolic BP is 70 and I feel dizzy.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I am having a heart attack.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I suddenly cannot move my left arm and my face is drooping.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I am coughing up large amounts of blood.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I took a lot of pills and want to sleep forever.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "My child is having a seizure for the past 10 minutes.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "Severe chest crushing pain radiating to my jaw.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I can't breathe, SpO2 is 85%.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "Patient collapsed.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I have severe abdominal pain and vomiting blood.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "Sudden thunderclap headache, worst of my life.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I was in a high speed car crash and my neck hurts.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "I am having an allergic reaction, my lips are swollen and wheezing.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Emergency",
+        "input": "Very high fever and stiff neck, confused.",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have a fever of 103 for the last 3 days.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have moderate breathing issues but SpO2 is 96.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "Severe back pain, no numbness.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I cut my finger, it's bleeding but I wrapped it.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I feel very dizzy when I stand up.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have been vomiting all day and can't keep water down.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "My asthma is acting up a bit, I used my inhaler.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "Severe stomach ache after eating spicy food.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have a kidney stone, the pain is 8 out of 10.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I fell and think my arm is broken, it's swollen.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have a terrible migraine, I want to throw up.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have a really bad toothache that is keeping me awake.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I stepped on a rusty nail.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "My blood pressure is 160 over 95 and I have a headache.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have a rash all over my body, it's very itchy.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have been having diarrhea for 2 days.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have a bad cough and feel very weak.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "My eye is very red and painful.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I have a burn on my hand from the stove.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Urgent",
+        "input": "I feel palpitations but no chest pain.",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Routine",
+        "input": "I have a mild cold and runny nose.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I have a minor headache since morning.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "Just a routine consultation for my diabetes.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I need a refill for my blood pressure medicine.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I have a small scrape on my knee.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I feel a bit tired today.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I have mild lower back pain after lifting a box.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I want to check my cholesterol levels.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I have a slight sore throat.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "My knee aches when it rains.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I have a mild rash on my arm.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I need a doctor's note for work.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I have a little bit of heartburn.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I want to know if I should take vitamins.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "My hair is thinning.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I have a mild stomach ache.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I sneezed a few times today.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I have a minor sunburn.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I want to get a flu shot.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Routine",
+        "input": "I have a slight earache.",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Missing",
+        "input": "I don't feel good.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "Something is wrong.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I need a doctor.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "Help me.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I am sick.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "It hurts.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "My body aches.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I'm not sure what's wrong.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "Can I see someone?",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I have a problem.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "Just feel off.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I don't know.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I have some pain.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I need medical advice.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I am unwell.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "Please help.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I need to go to the hospital.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I feel bad.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "Is a doctor available?",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Missing",
+        "input": "I want a checkup.",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Multilingual",
+        "input": "मुझे बहुत तेज सीने में दर्द हो रहा है और पसीना आ रहा है।",
+        "language": "hi",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Multilingual",
+        "input": "मुझे हल्का बुखार है।",
+        "language": "hi",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Multilingual",
+        "input": "मेरे पेट में बहुत तेज दर्द है।",
+        "language": "hi",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Multilingual",
+        "input": "मुझे चक्कर आ रहा है।",
+        "language": "hi",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Multilingual",
+        "input": "माझ्या छातीत खूप दुखत आहे आणि मला घाम येत आहे.",
+        "language": "mr",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Multilingual",
+        "input": "मला थोडा खोकला आहे.",
+        "language": "mr",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Multilingual",
+        "input": "माझे डोके खूप दुखत आहे.",
+        "language": "mr",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Multilingual",
+        "input": "मला श्वास घ्यायला त्रास होत आहे.",
+        "language": "mr",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Multilingual",
+        "input": "majhya chhatit khup dukhat ahe ani gham yetoy.",
+        "language": "roman-mr",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Multilingual",
+        "input": "mala thoda khokla yetoy.",
+        "language": "roman-mr",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Multilingual",
+        "input": "majhe doke khup dukhat ahe.",
+        "language": "roman-mr",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Multilingual",
+        "input": "mala shwas ghyayla tras hoto ahe.",
+        "language": "roman-mr",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Multilingual",
+        "input": "mujhe chest pain ho raha hai aur breathing problem hai.",
+        "language": "hinglish",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Multilingual",
+        "input": "mujhe mild cold hai.",
+        "language": "hinglish",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Multilingual",
+        "input": "mujhe severe back pain hai.",
+        "language": "hinglish",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Multilingual",
+        "input": "mujhe ajeeb sa lag raha hai.",
+        "language": "hinglish",
+        "expected_severity": "NON_EMERGENCY"
+    },
+    {
+        "category": "Multilingual",
+        "input": "I have fever and mala khokla yetoy",
+        "language": "hinglish",
+        "expected_severity": "URGENT"
+    },
+    {
+        "category": "Multilingual",
+        "input": "SpO2 85 hai, can't breathe",
+        "language": "hinglish",
+        "expected_severity": "EMERGENCY"
+    },
+    {
+        "category": "Multilingual",
+        "input": "Just a routine checkup ahe",
+        "language": "roman-mr",
+        "expected_severity": "ROUTINE"
+    },
+    {
+        "category": "Multilingual",
+        "input": "Mujhe heart attack jaisa lag raha hai",
+        "language": "hi",
+        "expected_severity": "EMERGENCY"
+    }
+]

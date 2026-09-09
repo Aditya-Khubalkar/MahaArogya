@@ -4,17 +4,28 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { checkHealth } from "@/lib/api";
 
-const navItems = [
-  { href: "/", label: "Dashboard", icon: "📊" },
-  { href: "/conversation", label: "Conversation", icon: "💬" },
-  { href: "/opd", label: "OPD Tokens", icon: "🎫" },
-  { href: "/reception", label: "Reception", icon: "🏥" },
-  { href: "/cctv", label: "CCTV Monitor", icon: "📹" },
+import RoleSwitcher from "@/components/RoleSwitcher";
+
+import { useRole } from "@/lib/roles";
+
+const allNavItems = [
+  { href: "/", label: "Dashboard", icon: "📊", roles: ["public", "reception", "nurse", "doctor", "hospital_admin", "hospital_head", "district_officer", "government"] },
+  { href: "/conversation", label: "Conversation", icon: "💬", roles: ["public"] },
+  { href: "/hospitals", label: "Hospital Finder", icon: "🗺️", roles: ["public", "reception"] },
+  { href: "/opd", label: "OPD Tokens", icon: "🎫", roles: ["public"] },
+  { href: "/reception", label: "Reception", icon: "🏥", roles: ["reception", "hospital_admin"] },
+  { href: "/live-queue", label: "Live Queue", icon: "⏱️", roles: ["public", "reception", "nurse", "doctor", "hospital_admin"] },
+  { href: "/nurse-ward", label: "Nurse Ward", icon: "🛏️", roles: ["nurse", "hospital_admin", "doctor"] },
+  { href: "/doctor-queue", label: "Doctor Queue", icon: "👨‍⚕️", roles: ["doctor", "hospital_admin"] },
+  { href: "/cctv", label: "CCTV Monitor", icon: "📹", roles: ["hospital_admin", "hospital_head", "district_officer", "government"] },
+  { href: "/admin", label: "Admin Overview", icon: "🏢", roles: ["hospital_admin", "hospital_head"] },
+  { href: "/government", label: "State Overview", icon: "🏛️", roles: ["district_officer", "government"] },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [healthy, setHealthy] = useState<boolean | null>(null);
+  const { role } = useRole();
 
   useEffect(() => {
     let mounted = true;
@@ -31,6 +42,8 @@ export default function Sidebar() {
     return () => { mounted = false; clearInterval(iv); };
   }, []);
 
+  const navItems = allNavItems.filter((item) => item.roles.includes(role));
+
   return (
     <aside className="sidebar">
       {/* Brand */}
@@ -40,6 +53,10 @@ export default function Sidebar() {
           <span className="brand-name">MahaArogya</span>
           <span className="brand-sub">Sanjeevani Grid</span>
         </div>
+      </div>
+
+      <div style={{ marginTop: '20px' }}>
+        <RoleSwitcher />
       </div>
 
       {/* Navigation */}

@@ -6,11 +6,15 @@ Supports Marathi, Hindi, English, Hinglish, and Code-Switching.
 
 import os
 import time
+import logging
+import threading
 from pathlib import Path
 from typing import Optional
 
 from ai.asr.config import ASRConfig
 from ai.asr.schemas import ASRResult, ASRSegment
+
+_asr_lock = threading.Lock()
 
 
 class ASRService:
@@ -19,26 +23,33 @@ class ASRService:
     def __init__(self, config: Optional[ASRConfig] = None):
         self.config = config or ASRConfig()
         self.model = None
-        self._load_model()
+        self._model_lock = threading.Lock()
 
     def _load_model(self):
         """Lazy loader for faster-whisper model on GPU/CPU."""
-        from faster_whisper import WhisperModel
+        if self.model is not None:
+            return
 
-        os.makedirs(self.config.download_root, exist_ok=True)
+        with self._model_lock:
+            if self.model is not None:
+                return
 
-        print(f"[ASRService] Loading Whisper '{self.config.model_size}' model...")
-        print(f"             Device: {self.config.device} | Precision: {self.config.compute_type}")
+            from faster_whisper import WhisperModel
 
-        start_t = time.time()
-        self.model = WhisperModel(
-            self.config.model_size,
-            device=self.config.device,
-            compute_type=self.config.compute_type,
-            download_root=self.config.download_root
-        )
-        elapsed = time.time() - start_t
-        print(f"[ASRService] Model loaded successfully in {elapsed:.2f}s")
+            os.makedirs(self.config.download_root, exist_ok=True)
+
+            logging.info(f"[ASRService] Loading Whisper '{self.config.model_size}' model...")
+            logging.info(f"             Device: {self.config.device} | Precision: {self.config.compute_type}")
+
+            start_t = time.time()
+            self.model = WhisperModel(
+                self.config.model_size,
+                device=self.config.device,
+                compute_type=self.config.compute_type,
+                download_root=self.config.download_root
+            )
+            elapsed = time.time() - start_t
+            logging.info(f"[ASRService] Model loaded successfully in {elapsed:.2f}s")
 
     def transcribe(
         self,
@@ -57,6 +68,9 @@ class ASRService:
         Returns:
             ASRResult containing transcript, segments, latency, and confidence
         """
+        if self.model is None:
+            self._load_model()
+
         audio_path = Path(audio_path)
         if not audio_path.exists():
             raise FileNotFoundError(f"Audio file not found: {audio_path}")
@@ -115,5 +129,7 @@ class ASRService:
 def get_asr_service(config: Optional[ASRConfig] = None) -> ASRService:
     """Singleton accessor for ASRService."""
     if ASRService._instance is None:
-        ASRService._instance = ASRService(config)
+        with _asr_lock:
+            if ASRService._instance is None:
+                ASRService._instance = ASRService(config)
     return ASRService._instance

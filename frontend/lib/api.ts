@@ -163,7 +163,7 @@ export async function sendConversationTurn(params: {
   patient_lat?: number;
   patient_lon?: number;
 }): Promise<ConversationTurnResponse> {
-  return apiFetch<ConversationTurnResponse>("/api/conversation/turn", {
+  return apiFetch<ConversationTurnResponse>("/api/v1/conversation/turn", {
     method: "POST",
     body: JSON.stringify({
       text_input: params.text_input,
@@ -182,7 +182,7 @@ export async function issueOPDToken(params: {
   slot_time: string;
   current_queue_length?: number;
 }): Promise<OPDToken> {
-  return apiFetch<OPDToken>("/api/opd/issue_token", {
+  return apiFetch<OPDToken>("/api/v1/opd/issue_token", {
     method: "POST",
     body: JSON.stringify({
       patient_id: params.patient_id,
@@ -198,7 +198,7 @@ export async function checkinPatient(params: {
   token_id: string;
   staff_user_id?: string;
 }): Promise<PatientQueueEntry> {
-  return apiFetch<PatientQueueEntry>("/api/reception/checkin", {
+  return apiFetch<PatientQueueEntry>("/api/v1/reception/checkin", {
     method: "POST",
     body: JSON.stringify({
       token_id: params.token_id,
@@ -215,7 +215,7 @@ export async function estimateCCTV(params: {
   db_authoritative_occupied: number;
   confidence?: number;
 }): Promise<CCTVOccupancyResult> {
-  return apiFetch<CCTVOccupancyResult>("/api/cctv/estimate", {
+  return apiFetch<CCTVOccupancyResult>("/api/v1/cctv/estimate", {
     method: "POST",
     body: JSON.stringify({
       camera_id: params.camera_id,
@@ -227,3 +227,62 @@ export async function estimateCCTV(params: {
     }),
   });
 }
+
+export interface QueueItem {
+  token_id: string;
+  patient_name: string;
+  status: string;
+  department: string;
+  estimated_wait_time: number;
+}
+
+export interface RoleInfo {
+  id: string;
+  title: string;
+  description: string;
+  permissions: string[];
+}
+
+export async function getHospitals(): Promise<Hospital[]> {
+  return apiFetch<Hospital[]>("/api/v1/hospitals/");
+}
+
+export async function getQueue(): Promise<QueueItem[]> {
+  return apiFetch<QueueItem[]>("/api/v1/queue/");
+}
+
+export async function getRoles(): Promise<RoleInfo[]> {
+  return apiFetch<RoleInfo[]>("/api/v1/roles/");
+}
+
+export async function demoLogin(userId: string): Promise<any> {
+  return apiFetch<any>("/api/v1/auth/demo-login", {
+    method: "POST",
+    body: JSON.stringify({ user_id: userId }),
+  });
+}
+
+export async function getDashboardStats(): Promise<any> {
+  return apiFetch<any>("/api/v1/dashboard/stats");
+}
+
+export async function getWardPatients(): Promise<any[]> {
+  return apiFetch<any[]>("/api/v1/ward/patients");
+}
+
+export async function getDoctorQueue(): Promise<any[]> {
+  return apiFetch<any[]>("/api/v1/doctor/queue");
+}
+
+export async function getAdminOverview(): Promise<any> {
+  return apiFetch<any>("/api/v1/admin/overview");
+}
+
+export async function getGovtOverview(): Promise<any> {
+  return apiFetch<any>("/api/v1/govt/state-overview");
+}
+
+export async function getLiveQueue(): Promise<QueueItem[]> {
+  return apiFetch<QueueItem[]>("/api/v1/queue/live");
+}
+

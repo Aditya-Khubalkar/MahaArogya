@@ -1,7 +1,51 @@
+# ─── Python ───
 venv/
-models/
-data/
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ─── Models & Data ───
+models/
+data/
+
+# ─── Environment & Config ───
 .env
+.env.local
+.env.production
+
+# ─── IDE & OS ───
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+Desktop.ini
+
+# ─── Test & Cache ───
 .pytest_cache/
+.coverage
+htmlcov/
+
+# ─── Node / Frontend ───
+node_modules/
+.next/
+
+# ─── Temp & Dev artifacts ───
+tmp/
+tmp_*.json
+*.wav
+SESSION_LOG_*.md
+dataset_audit_results.json
+nhamcs_audit.json
+
+# ─── Abandoned frontend ───
+frontend maha/
+
+# ─── Database ───
+*.db
+*.db-wal
+*.db-shm

@@ -1,5 +1,5 @@
-﻿"""
-MahaArogya â€” Local TTS Service
+"""
+MahaArogya — Local TTS Service
 Offline text-to-speech synthesis engine generating WAV responses for voice mode.
 """
 

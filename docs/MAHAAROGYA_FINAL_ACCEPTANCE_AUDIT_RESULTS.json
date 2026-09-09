@@ -1,0 +1,1015 @@
+{
+  "sections": {
+    "1_ENVIRONMENT": {
+      "status": "PASS",
+      "evidence": {
+        "python_version": "3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]",
+        "pytorch_version": "2.11.0+cu128",
+        "cuda_available": true,
+        "cuda_version": "12.8",
+        "gpu_count": 1,
+        "gpus": [
+          {
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 5060 Laptop GPU",
+            "vram_gb": 7.96
+          }
+        ],
+        "rtx_5060_present": true,
+        "missing_dirs": []
+      }
+    },
+    "2_MODEL_INTEGRITY": {
+      "status": "PASS",
+      "evidence": {
+        "models": {
+          "triage_xgboost": {
+            "path": "C:\\MahaArogya\\models\\triage_xgboost_baseline\\model.json",
+            "size_bytes": 2090326,
+            "sha256": "c62d79cab7e4a4865c712de6ab3a0a42813ed05b77d19a86193eb47a31bf7887",
+            "loaded": true,
+            "inference_result": "ROUTINE",
+            "source": "xgboost_baseline"
+          },
+          "triage_preprocessor": {
+            "path": "C:\\MahaArogya\\models\\triage_xgboost_baseline\\preprocessor.pkl",
+            "size_bytes": 5179,
+            "sha256": "51aef055de1bdc8765092418c5b28332145a251510e3a5dfe558691a26898d33"
+          },
+          "asr": {
+            "loaded": true,
+            "device": "cuda",
+            "model_name": "unknown"
+          }
+        }
+      }
+    },
+    "3_ASR": {
+      "status": "PASS",
+      "evidence": {
+        "results": [
+          {
+            "lang": "mr",
+            "fixture": "C:\\MahaArogya\\test_mr.wav",
+            "transcript": "mera oxygen 88 hai",
+            "accepted_phrases": [
+              "mera",
+              "oxygen",
+              "88",
+              "hai",
+              "breathe",
+              "pain"
+            ],
+            "matched_phrase": "mera",
+            "matched": true,
+            "latency_s": 0.744,
+            "vram_before": {
+              "allocated": 0.485,
+              "reserved": 1.066
+            },
+            "vram_after": {
+              "allocated": 0.494,
+              "reserved": 1.072
+            }
+          },
+          {
+            "lang": "en",
+            "fixture": "C:\\MahaArogya\\data\\test\\asr\\synthetic_tts\\asr_en_03.wav",
+            "transcript": "I am experiencing sharp chest pain and shortness of breath",
+            "accepted_phrases": [
+              "oxygen",
+              "breathe",
+              "88",
+              "pain",
+              "fever",
+              "chest"
+            ],
+            "matched_phrase": "pain",
+            "matched": true,
+            "latency_s": 0.265,
+            "vram_before": {
+              "allocated": 0.494,
+              "reserved": 1.072
+            },
+            "vram_after": {
+              "allocated": 0.494,
+              "reserved": 1.072
+            }
+          }
+        ],
+        "vram_peak": {
+          "allocated": 0.904,
+          "reserved": 1.072
+        }
+      }
+    },
+    "4_NLP_EXTRACTION": {
+      "status": "PASS",
+      "evidence": {
+        "results": [
+          {
+            "input": "My oxygen is 88 and I cannot breathe.",
+            "return_type": "<class 'ai.patient_state.schemas.PatientStateDelta'>",
+            "symptoms": [
+              "breathlessness"
+            ],
+            "spo2": 88.0,
+            "passed": true
+          },
+          {
+            "input": "Maza pot dukhtay don divas pasun",
+            "return_type": "<class 'ai.patient_state.schemas.PatientStateDelta'>",
+            "symptoms": [
+              "abdominal_pain"
+            ],
+            "spo2": null,
+            "passed": true
+          }
+        ]
+      }
+    },
+    "5_MULTI_TURN_MEMORY": {
+      "status": "PASS",
+      "evidence": {
+        "session_A_symptoms": [
+          "abdominal_pain",
+          "vomiting"
+        ],
+        "session_B_symptoms": [
+          "fever"
+        ],
+        "checks": {
+          "abdominal_pain_in_A": true,
+          "vomiting_in_A": true,
+          "fever_not_in_A": true,
+          "abdominal_pain_not_in_B": true
+        }
+      }
+    },
+    "6_SAFETY_ENGINE": {
+      "status": "PASS",
+      "evidence": {
+        "results": [
+          {
+            "case": "SpO2_88",
+            "is_emergency": true,
+            "triggered_rules": [
+              "RULE_HYPOXIA_SPO2"
+            ],
+            "escalation": "EMERGENCY_AMBULANCE",
+            "expected_emergency": true
+          },
+          {
+            "case": "Unconscious",
+            "is_emergency": true,
+            "triggered_rules": [
+              "RULE_NEURO_01"
+            ],
+            "escalation": "EMERGENCY_AMBULANCE",
+            "expected_emergency": true
+          },
+          {
+            "case": "Severe_chest",
+            "is_emergency": true,
+            "triggered_rules": [
+              "RULE_CARDIAC_01"
+            ],
+            "escalation": "EMERGENCY_AMBULANCE",
+            "expected_emergency": true
+          },
+          {
+            "case": "Mild_cough",
+            "is_emergency": false,
+            "triggered_rules": [],
+            "escalation": "OPD_ROUTINE",
+            "expected_emergency": false
+          }
+        ]
+      }
+    },
+    "7_TRIAGE_ML": {
+      "status": "PASS",
+      "evidence": {
+        "emergency": {
+          "final_category": "EMERGENCY",
+          "escalation": "EMERGENCY_AMBULANCE",
+          "triggered_rules": [
+            "RULE_HYPOXIA_SPO2",
+            "RULE_RESP_01"
+          ],
+          "ml_call_count": 0
+        },
+        "routine": {
+          "final_category": "ROUTINE",
+          "ml_call_count": 1
+        }
+      }
+    },
+    "8_TTS": {
+      "status": "PASS",
+      "evidence": {
+        "results": [
+          {
+            "lang": "en",
+            "latency_s": 2.287,
+            "output_path": "C:\\MahaArogya\\data\\processed\\audio_responses\\response_eb7f5902.wav",
+            "exists": true,
+            "frames": 41472,
+            "sample_rate": 22050,
+            "channels": 1,
+            "sampwidth": 2,
+            "duration_s": 1.881,
+            "rms_energy": 5647.34,
+            "passed": true
+          },
+          {
+            "lang": "mr",
+            "latency_s": 18.607,
+            "output_path": "C:\\MahaArogya\\data\\processed\\audio_responses\\response_07cca7d2.wav",
+            "exists": true,
+            "frames": 41984,
+            "sample_rate": 24000,
+            "channels": 1,
+            "sampwidth": 2,
+            "duration_s": 1.749,
+            "rms_energy": 1342.83,
+            "passed": true
+          },
+          {
+            "lang": "hi",
+            "latency_s": 1.905,
+            "output_path": "C:\\MahaArogya\\data\\processed\\audio_responses\\response_8465bdc0.wav",
+            "exists": true,
+            "frames": 24576,
+            "sample_rate": 22050,
+            "channels": 1,
+            "sampwidth": 2,
+            "duration_s": 1.115,
+            "rms_energy": 5605.64,
+            "passed": true
+          }
+        ],
+        "device": "unknown"
+      }
+    },
+    "9_END_TO_END_VOICE": {
+      "status": "PASS",
+      "evidence": {
+        "fixture": "C:\\MahaArogya\\test_mr.wav",
+        "fixture_sha256": "58e3926d6cadad489d5cd3782d6cc375a1470a7edb3264994926f758ae97b37e",
+        "asr_transcript": "mera oxygen 88 hai",
+        "triage_category": "EMERGENCY",
+        "escalation": "EMERGENCY_AMBULANCE",
+        "triggered_rules": [
+          "RULE_HYPOXIA_SPO2"
+        ],
+        "is_ready": true,
+        "ml_call_count": 0,
+        "audio_path": "C:\\MahaArogya\\data\\processed\\audio_responses\\response_d7101460.wav",
+        "tts_frames": 1202928,
+        "tts_duration": 50.122,
+        "patient_state_symptoms": []
+      }
+    },
+    "10_FASTAPI": {
+      "status": "PASS",
+      "evidence": {
+        "health_status": 200,
+        "text_turn_status": 200,
+        "text_triage": "EMERGENCY",
+        "malformed_status": 422,
+        "bad_schema_status": 422
+      }
+    },
+    "11_API_SECURITY": {
+      "status": "PASS",
+      "evidence": {
+        "cors_evil_allow_origin": "",
+        "evil_cors_allowed": false,
+        "schema_fail_status": 422,
+        "traceback_leaked": false
+      }
+    },
+    "12_PORTABILITY": {
+      "status": "PASS",
+      "evidence": {
+        "hardcoded_paths": [],
+        "inspection_errors": [],
+        "scanned_dirs": [
+          "ai",
+          "api",
+          "core",
+          "src"
+        ]
+      }
+    },
+    "13_CLOUD_API_DEPENDENCIES": {
+      "status": "PASS",
+      "evidence": {
+        "offline_triage_result": "EMERGENCY",
+        "offline_success": true
+      }
+    },
+    "14_MOCK_DETECTION": {
+      "status": "PASS",
+      "evidence": {
+        "production_mocks": [],
+        "inspection_errors": []
+      }
+    },
+    "15_VRAM_PERFORMANCE": {
+      "status": "PASS",
+      "evidence": {
+        "gpu_total_vram_gb": 7.96,
+        "baseline": {
+          "allocated": 1.853,
+          "reserved": 2.568
+        },
+        "after_model_load": {
+          "allocated": 2.74,
+          "reserved": 3.133
+        },
+        "pipeline_executed": true,
+        "triage_result": "EMERGENCY",
+        "peak": {
+          "allocated": 3.203,
+          "reserved": 3.738
+        },
+        "peak_allocated_gb": 3.203,
+        "nvidia_smi_used_gb": 5.836
+      }
+    },
+    "16_REGRESSION_TESTS": {
+      "status": "PASS",
+      "evidence": {
+        "pytest_executable": "C:\\MahaArogya\\venv\\Scripts\\pytest.exe",
+        "python_executable": "C:\\MahaArogya\\venv\\Scripts\\python.exe",
+        "exit_code": 0,
+        "stdout_tail": "[ 60%]\ntests\\test_tts_service.py ............                                   [100%]\n\n============================== warnings summary ===============================\nvenv\\Lib\\site-packages\\fastapi\\testclient.py:1\n  C:\\MahaArogya\\venv\\Lib\\site-packages\\fastapi\\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\ntests/test_api.py::test_text_turn_endpoint\ntests/test_integration.py::test_full_multiturn_marathi_conversation\ntests/test_integration.py::test_emergency_chest_pain_integration\n  C:\\MahaArogya\\venv\\Lib\\site-packages\\transformers\\models\\bert\\tokenization_bert.py:104: DeprecationWarning: Deprecated in 0.9.0: WordPiece.__init__ will not create from files anymore, try `WordPiece.from_file` instead\n    self._tokenizer = Tokenizer(WordPiece(self._vocab, unk_token=str(unk_token)))\n\ntests/test_api.py::test_text_turn_endpoint\ntests/test_integration.py::test_full_multiturn_marathi_conversation\ntests/test_integration.py::test_emergency_chest_pain_integration\n  C:\\MahaArogya\\venv\\Lib\\site-packages\\joblib\\numpy_pickle.py:207: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.\n  As an alternative, you can create a new view using np.reshape (with copy=False if needed).\n    array.shape = self.shape\n\ntests/test_tts_service.py::test_marathi_synthesis\n  C:\\MahaArogya\\venv\\Lib\\site-packages\\pydub\\utils.py:14: DeprecationWarning: 'audioop' is deprecated and slated for removal in Python 3.13\n    import audioop\n\ntests/test_tts_service.py::test_marathi_synthesis\n  C:\\MahaArogya\\venv\\Lib\\site-packages\\torch\\jit\\_script.py:1488: DeprecationWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n================== 30 passed, 9 warnings in 81.13s (0:01:21) ==================\n",
+        "stderr_tail": "Exception ignored in: <function ResourceTracker.__del__ at 0x0000027014BDCB80>\nTraceback (most recent call last):\n  File \"C:\\MahaArogya\\venv\\Lib\\site-packages\\multiprocess\\resource_tracker.py\", line 80, in __del__\n  File \"C:\\MahaArogya\\venv\\Lib\\site-packages\\multiprocess\\resource_tracker.py\", line 89, in _stop\n  File \"C:\\MahaArogya\\venv\\Lib\\site-packages\\multiprocess\\resource_tracker.py\", line 102, in _stop_locked\nAttributeError: '_thread.RLock' object has no attribute '_recursion_count'\n",
+        "parsed": {
+          "passed": 30,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    "18_3050_COMPONENT": {
+      "status": "PASS",
+      "evidence": {
+        "artifact_path": "C:\\MahaArogya\\models\\triage_xgboost_baseline\\model.json",
+        "artifact_size": 2090326,
+        "artifact_sha256": "c62d79cab7e4a4865c712de6ab3a0a42813ed05b77d19a86193eb47a31bf7887",
+        "preprocessor_path": "C:\\MahaArogya\\models\\triage_xgboost_baseline\\preprocessor.pkl",
+        "preprocessor_size": 5179,
+        "preprocessor_sha256": "51aef055de1bdc8765092418c5b28332145a251510e3a5dfe558691a26898d33",
+        "run_manifest": {
+          "architecture": "MultimodalTriageClassifier",
+          "best_epoch": 2,
+          "best_emergency_recall": 1.0
+        },
+        "component_loaded": true,
+        "component_model_dir": "C:\\MahaArogya\\models\\triage_xgboost_baseline",
+        "artifact_linked_to_component": true,
+        "inference_result": "EMERGENCY",
+        "inference_source": "xgboost_baseline",
+        "inference_executed": true
+      }
+    },
+    "19_CROSS_SYSTEM_INTEGRATION": {
+      "status": "PASS",
+      "evidence": {
+        "fixture": "C:\\MahaArogya\\test_mr.wav",
+        "fixture_sha256": "58e3926d6cadad489d5cd3782d6cc375a1470a7edb3264994926f758ae97b37e",
+        "stage1_asr_transcript": "mera oxygen 88 hai",
+        "stage2_symptoms": [],
+        "stage2_vitals_type": "<class 'ai.patient_state.schemas.Vitals'>",
+        "stage2_vitals_spo2": 88.0,
+        "stage3_patient_state_symptoms": [],
+        "stage4_safety_emergency": true,
+        "stage4_triggered_rules": [
+          "RULE_HYPOXIA_SPO2"
+        ],
+        "stage4_escalation": "EMERGENCY_AMBULANCE",
+        "stage5_triage_category": "EMERGENCY",
+        "stage5_escalation": "EMERGENCY_AMBULANCE",
+        "stage5_confidence": 1.0,
+        "stage6_tts_path": "C:\\MahaArogya\\data\\processed\\audio_responses\\response_ad6c5500.wav",
+        "stage6_tts_exists": true,
+        "stage6_tts_frames": 1202928,
+        "stage6_tts_duration": 50.122,
+        "stage6_tts_decodable": true
+      }
+    },
+    "20_FILE_FOLDER_INTEGRITY": {
+      "status": "PASS",
+      "evidence": {
+        "models_found": [
+          {
+            "path": "C:\\MahaArogya\\models\\checkpoints\\question_ranker\\best_model.pt",
+            "size_bytes": 950311898,
+            "sha256": "c0420923b23cf00ae1afa6a6cea5ad3079fd474a9a879c7edc458041ee2621a1"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\extraction_classifier\\best_model.pt",
+            "size_bytes": 950358042,
+            "sha256": "94b0fb9eec99b2996063c750f8684d588fe2e5d17bd557a61627c472423f2177"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\extraction_classifier\\run_manifest.json",
+            "size_bytes": 1082,
+            "sha256": "88792fc3ffdc32c38310ce01a7c93fde6606d2e06cdec419472512c19440337c"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\question_ranker_v2\\best_model.pt",
+            "size_bytes": 950311898,
+            "sha256": "c7ea82c4fc45809acfdadb0504b23900356e41270c830bfccdfae696576f7e54"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\question_ranker_v2\\training_metrics.json",
+            "size_bytes": 707,
+            "sha256": "5731f1babd27461dcd9343dbaccc01c902834d30ae83c1c23ca5749a978d7f89"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_classifier\\best_model.pt",
+            "size_bytes": 950769196,
+            "sha256": "cfc2805b3a96b08cd2b89baec972a3b26cbc8d32a60c5b5d19931c924c3c75fc"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_classifier\\checkpoint_epoch_1.pt",
+            "size_bytes": 950770932,
+            "sha256": "6e2b472314fcc97bda3ee863f1876f5b347683318b15464cf27ef7a644a7c8b6"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_classifier\\checkpoint_epoch_2.pt",
+            "size_bytes": 950770932,
+            "sha256": "13904415a575f8b3edd25c42f0934191aa9d19d87ba7bdb9fb79bc2943dc595a"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_classifier\\checkpoint_epoch_3.pt",
+            "size_bytes": 950770932,
+            "sha256": "0f1018745cc6393e399e252a72e1c49082bec1f712a179995f16b4ff50d8f8d9"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_classifier\\checkpoint_epoch_4.pt",
+            "size_bytes": 950770932,
+            "sha256": "352a0257bf327ad4f5d182bad6ac25892b588df3b548ccbd8636330ed1bf3fef"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_classifier\\run_manifest.json",
+            "size_bytes": 2270,
+            "sha256": "29367764382cdf7d1d2e4d89249ed0781d11ffed1a650d332a69127595fe2faa"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_lightgbm_baseline\\label_mapping.json",
+            "size_bytes": 108,
+            "sha256": "fa6012dfe023fd5e313b5a3a211d4e3b669a83b267d443a53b441e091741cba4"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_lightgbm_baseline\\model.pkl",
+            "size_bytes": 1553348,
+            "sha256": "4bfa516b8cb579b5cbbc4e8825c66adf284c6790de862ee4b554291c7e76ed7d"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_lightgbm_baseline\\preprocessor.pkl",
+            "size_bytes": 5179,
+            "sha256": "51aef055de1bdc8765092418c5b28332145a251510e3a5dfe558691a26898d33"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_xgboost_baseline\\label_mapping.json",
+            "size_bytes": 108,
+            "sha256": "fa6012dfe023fd5e313b5a3a211d4e3b669a83b267d443a53b441e091741cba4"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_xgboost_baseline\\model.json",
+            "size_bytes": 2090326,
+            "sha256": "c62d79cab7e4a4865c712de6ab3a0a42813ed05b77d19a86193eb47a31bf7887"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\triage_xgboost_baseline\\preprocessor.pkl",
+            "size_bytes": 5179,
+            "sha256": "51aef055de1bdc8765092418c5b28332145a251510e3a5dfe558691a26898d33"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\config.json",
+            "size_bytes": 350,
+            "sha256": "9d2bc0d96078b6914e9d77d3b7236c473fa11220a12b7ac0e3fdd148d0533591"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\en\\en_US\\libritts_r\\medium\\en_US-libritts_r-medium.onnx.json",
+            "size_bytes": 20123,
+            "sha256": "b471dc60d2d8335e819c393d196d6fbf792817f40051257b269878505bc9afb3"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\hi\\hi_IN\\pratham\\medium\\hi_IN-pratham-medium.onnx.json",
+            "size_bytes": 4970,
+            "sha256": "b68edd2cd7950dd436314013b7cd12e9699e5a3f6fe5af5af94294cf6aa7b9fd"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\IndicF5\\config.json",
+            "size_bytes": 350,
+            "sha256": "9d2bc0d96078b6914e9d77d3b7236c473fa11220a12b7ac0e3fdd148d0533591"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\IndicF5\\model.safetensors",
+            "size_bytes": 1402789408,
+            "sha256": "ba7f3671180fb7784e24bd1dafc96e729a38ce02e7f6d3877cdef32525a1865c"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\IndicF5\\.cache\\huggingface\\trees\\ba85abedf18dc479a447eaa0eccbd76ab78a47d5.json",
+            "size_bytes": 11251,
+            "sha256": "367b0f94ebe95c89d308abb3f5f833c1d3d2b6188e38d7ea3680907b7a25ff66"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\.no_exist\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\added_tokens.json",
+            "size_bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\.no_exist\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\tokenizer.json",
+            "size_bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\snapshots\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\config.json",
+            "size_bytes": 1641,
+            "sha256": "30eebf11d14ec17cbfe000ba5a8a9e97717e5c25079a400f33f98115c5be9bf3"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\snapshots\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\model.safetensors",
+            "size_bytes": 145253624,
+            "sha256": "675b45f0c34c5f7f8c78baf0403a6afb16a3e5fac0c2740601dad877d1f5cb0c"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\snapshots\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\special_tokens_map.json",
+            "size_bytes": 49,
+            "sha256": "92a7a7e498bdc4376efc3cc2ed711a8980fa8cd48472bde07c2f5282c1af6524"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\snapshots\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\tokenizer_config.json",
+            "size_bytes": 289,
+            "sha256": "e0253ba9c7c4e2a99ef03f80832470ed91a9600103ec5f01dbee6b9f9791187d"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\snapshots\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\vocab.json",
+            "size_bytes": 907,
+            "sha256": "94e86533fb47d1c5a90d8d7f39d630d7cc7ce687521c9e826f536c2c6d25463e"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-mar\\.no_exist\\7af4a6db1df2eb20042d24cc7c180a492df1cc13\\added_tokens.json",
+            "size_bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-mar\\.no_exist\\7af4a6db1df2eb20042d24cc7c180a492df1cc13\\tokenizer.json",
+            "size_bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-mar\\snapshots\\7af4a6db1df2eb20042d24cc7c180a492df1cc13\\config.json",
+            "size_bytes": 1641,
+            "sha256": "f487f445720eb352cb242088ec37869ea2439560be8d704331867be7db0f8225"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-mar\\snapshots\\7af4a6db1df2eb20042d24cc7c180a492df1cc13\\model.safetensors",
+            "size_bytes": 145254392,
+            "sha256": "fb53c1d8cd642b1df939162c71f91fb75d40b9c919a860de2f171e46295312b9"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-mar\\snapshots\\7af4a6db1df2eb20042d24cc7c180a492df1cc13\\special_tokens_map.json",
+            "size_bytes": 49,
+            "sha256": "e75aeb479a46d8331fb920991cbc0a52d5b001c60931cf92d6d9cf8c6e84cfcc"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-mar\\snapshots\\7af4a6db1df2eb20042d24cc7c180a492df1cc13\\tokenizer_config.json",
+            "size_bytes": 289,
+            "sha256": "3fddde86aa9fe1408993380057be50e644ec9a9f48771c03c90e3139fd8f1296"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-mar\\snapshots\\7af4a6db1df2eb20042d24cc7c180a492df1cc13\\vocab.json",
+            "size_bytes": 918,
+            "sha256": "f0bc7b7d087e4cbaba8c79a535461612a8bf7da5e145d377c96926b9308866f7"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\piper\\en\\en_US\\libritts\\high\\en_US-libritts-high.onnx.json",
+            "size_bytes": 20163,
+            "sha256": "2efdc6d7f954588b8180132cbd9b8001933fdd00932c92bc92fd0d2028a9eb3d"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\tts\\piper\\hi\\hi_IN\\pratham\\medium\\hi_IN-pratham-medium.onnx.json",
+            "size_bytes": 4970,
+            "sha256": "b68edd2cd7950dd436314013b7cd12e9699e5a3f6fe5af5af94294cf6aa7b9fd"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper\\models--Systran--faster-whisper-small\\snapshots\\536b0662742c02347bc0e980a01041f333bce120\\config.json",
+            "size_bytes": 2370,
+            "sha256": "b55496ac7940a7ae47d2c01eab40edfd8701feec1229d9cce3b40014383fb828"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper\\models--Systran--faster-whisper-small\\snapshots\\536b0662742c02347bc0e980a01041f333bce120\\tokenizer.json",
+            "size_bytes": 2203239,
+            "sha256": "fb7b63191e9bb045082c79fd742a3106a12c99513ab30df4a0d47fa6cb6fd0ab"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper\\models--Systran--faster-whisper-small\\trees\\536b0662742c02347bc0e980a01041f333bce120.json",
+            "size_bytes": 867,
+            "sha256": "2c2a0eab9d9f5cb5b4585555f2dfd24e40ea4d6503560b99d2624c569be39b53"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned\\best_model.pt",
+            "size_bytes": 967123056,
+            "sha256": "5209b032bfd1dbac364ff52e8255bf95a8ace2c6a619a8b0e94c58155b908578"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned\\fleurs_eval_results.json",
+            "size_bytes": 38025,
+            "sha256": "651aab9ed8fff3f4489cbea7569c08ad39f32c6172ec8d6a90be5bbed1b3ab83"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned\\processor_config.json",
+            "size_bytes": 426,
+            "sha256": "0ddb6d4341f4f0f0373c0243b9a8a60f914e90ea2794f5833e4a2c389f54e69f"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned\\run_manifest.json",
+            "size_bytes": 1867,
+            "sha256": "88adc8bea8af4ff6b753e3e169ec8936c85f48e93dfdd7c97f5bb61a88750751"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned\\tokenizer.json",
+            "size_bytes": 3931230,
+            "sha256": "d150188ae94352dd80cf0700656ae6046f450574df71b83e642cf2b36f34afde"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned\\tokenizer_config.json",
+            "size_bytes": 2254,
+            "sha256": "a56d60bccd5653244a8b28ed52d527b96b6e23b11b5afacef5bfd236becb37f4"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\best_model.pt",
+            "size_bytes": 967123056,
+            "sha256": "5209b032bfd1dbac364ff52e8255bf95a8ace2c6a619a8b0e94c58155b908578"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\fleurs_eval_results.json",
+            "size_bytes": 38025,
+            "sha256": "651aab9ed8fff3f4489cbea7569c08ad39f32c6172ec8d6a90be5bbed1b3ab83"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\processor_config.json",
+            "size_bytes": 426,
+            "sha256": "0ddb6d4341f4f0f0373c0243b9a8a60f914e90ea2794f5833e4a2c389f54e69f"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\run_manifest.json",
+            "size_bytes": 1867,
+            "sha256": "88adc8bea8af4ff6b753e3e169ec8936c85f48e93dfdd7c97f5bb61a88750751"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\tokenizer.json",
+            "size_bytes": 3931230,
+            "sha256": "d150188ae94352dd80cf0700656ae6046f450574df71b83e642cf2b36f34afde"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\tokenizer_config.json",
+            "size_bytes": 2254,
+            "sha256": "a56d60bccd5653244a8b28ed52d527b96b6e23b11b5afacef5bfd236becb37f4"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\best_model.pt",
+            "size_bytes": 967123056,
+            "sha256": "c871f372e715e8a71b4c4d76fbe937b7905876933937b44275bf8b2fc582f534"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_1200.pt",
+            "size_bytes": 967127906,
+            "sha256": "f02bba66e1958e7ae95fdaa7a3ee64f9790f7dedcbbe5345054e6169c16883ef"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_1440.pt",
+            "size_bytes": 967127906,
+            "sha256": "ac77ef965cb4161b6de4147baae05ec9bc3e156cc12d6d7fa783497204e3dbdb"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_1680.pt",
+            "size_bytes": 967127906,
+            "sha256": "c41645bb3ddbe3c3977eb7602e153e3717b52af5323178be2d3d5e452c15ec7b"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_1920.pt",
+            "size_bytes": 967127906,
+            "sha256": "316160ba0ec092902a5e267a540d829b092b86b77c6eda0c7850e74f243a855a"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_2160.pt",
+            "size_bytes": 967127906,
+            "sha256": "35278189868a9e139746cfcb672ad857a1fb8d809ae138f37f83f218ba45bb33"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_240.pt",
+            "size_bytes": 967127421,
+            "sha256": "94ab9459643e41adc10d05c781d9d1f585c7d1caa955412c9bf0f6dd966dca7f"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_2400.pt",
+            "size_bytes": 967127906,
+            "sha256": "3180bdbdadc584bdb7e3e5ae4a4ea16dd93b174a1c045ce8216971519d25b7bf"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_480.pt",
+            "size_bytes": 967127421,
+            "sha256": "c3fd2b1b644ae45ade02fbe571eef21cd218a2543d997fa645829d97d9e3a5cc"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_720.pt",
+            "size_bytes": 967127421,
+            "sha256": "b1a1d0b8ec232c5c68d90834f55022b4f8ca3b911e4016443a2a8f292d181ae7"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\checkpoint_step_960.pt",
+            "size_bytes": 967127421,
+            "sha256": "04d94de55a0ff7f3f8de7c252355cb8144b8171f3ae46a72c5ffcd5c0559ba3e"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\fleurs_eval_results.json",
+            "size_bytes": 46247,
+            "sha256": "b561228e6283665b65645cb8d76a80e541036457b618b81410b5df3b6a1af87d"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\processor_config.json",
+            "size_bytes": 426,
+            "sha256": "0ddb6d4341f4f0f0373c0243b9a8a60f914e90ea2794f5833e4a2c389f54e69f"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\run_manifest.json",
+            "size_bytes": 3663,
+            "sha256": "7bff490e5098ea384dd763bf3f8ce8fc115b3ef396a7c5e0f37645f0a09b68a2"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\tokenizer.json",
+            "size_bytes": 3931230,
+            "sha256": "d150188ae94352dd80cf0700656ae6046f450574df71b83e642cf2b36f34afde"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\tokenizer_config.json",
+            "size_bytes": 2253,
+            "sha256": "434c251f9eb020248e77ceeeeaeee3720c586335d12b963b30adb161524179dd"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\config.json",
+            "size_bytes": 1302,
+            "sha256": "1a378fdb0cb7288198721dbc811814b971cb4a15752d7a172eb0253e9e9783ac"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\generation_config.json",
+            "size_bytes": 4127,
+            "sha256": "4816bfe53dd68d45c4a810b67eabd129580392b13a8c93aa8aa190f29dd61e68"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\model.safetensors",
+            "size_bytes": 966995080,
+            "sha256": "2a2caa2c3b5f945e51f24c13803dd29af07d6071c73b42fead895bc2add44e7f"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\preprocessor_config.json",
+            "size_bytes": 329,
+            "sha256": "3e4dc53c73e7e3954fc4435034f5027733c61d7c123b38bbd1461598fd8503ef"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\processor_config.json",
+            "size_bytes": 426,
+            "sha256": "0ddb6d4341f4f0f0373c0243b9a8a60f914e90ea2794f5833e4a2c389f54e69f"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\tokenizer.json",
+            "size_bytes": 3930882,
+            "sha256": "5aa6002223144c6861bf2d817b0fe04c3dfdabfbbe4347d99fe4200a9317a9ae"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\tokenizer_config.json",
+            "size_bytes": 2249,
+            "sha256": "ffc51e92dd09c0bd8c6ab7b603e808c51dfd778a72a9eb200e1a530a1efbb3e9"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\config.json",
+            "size_bytes": 1302,
+            "sha256": "1a378fdb0cb7288198721dbc811814b971cb4a15752d7a172eb0253e9e9783ac"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\generation_config.json",
+            "size_bytes": 4127,
+            "sha256": "4816bfe53dd68d45c4a810b67eabd129580392b13a8c93aa8aa190f29dd61e68"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\model.safetensors",
+            "size_bytes": 966995080,
+            "sha256": "8c9e4057e2c4f478cb857f0414a3cf604f0c7d925c291b6dc9db061c751b8da6"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\optimizer.pt",
+            "size_bytes": 1934288064,
+            "sha256": "868e5bde7b44aab6d1cda26f17967b22e4b918dd1de0402c18355fec557f662e"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\preprocessor_config.json",
+            "size_bytes": 329,
+            "sha256": "3e4dc53c73e7e3954fc4435034f5027733c61d7c123b38bbd1461598fd8503ef"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\rng_state.pth",
+            "size_bytes": 14645,
+            "sha256": "9db818b279a2207b59e25578e01819d213b41c2932ca9b927266c85ea847a2a8"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\scaler.pt",
+            "size_bytes": 1383,
+            "sha256": "7b8f49c753b48b806fa64bbf0cb2d67ca7e5e05149025ab240d5ffd8f4214f45"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\scheduler.pt",
+            "size_bytes": 1465,
+            "sha256": "46e6016ec42ab90cb46add85144f45031fb1347705e67ce8af68d8416aff95fb"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\trainer_state.json",
+            "size_bytes": 1404,
+            "sha256": "a4ea797f73bf96e2748b306be9227fb5096c1800c8194a6ec42cf434a99c91f7"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\config.json",
+            "size_bytes": 1302,
+            "sha256": "1a378fdb0cb7288198721dbc811814b971cb4a15752d7a172eb0253e9e9783ac"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\generation_config.json",
+            "size_bytes": 4127,
+            "sha256": "4816bfe53dd68d45c4a810b67eabd129580392b13a8c93aa8aa190f29dd61e68"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\model.safetensors",
+            "size_bytes": 966995080,
+            "sha256": "2a2caa2c3b5f945e51f24c13803dd29af07d6071c73b42fead895bc2add44e7f"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\optimizer.pt",
+            "size_bytes": 1934288064,
+            "sha256": "feac5d9d3a6b77dca9674b53a4ba25104fd6cdcb3aa098638e06afed26889e20"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\preprocessor_config.json",
+            "size_bytes": 329,
+            "sha256": "3e4dc53c73e7e3954fc4435034f5027733c61d7c123b38bbd1461598fd8503ef"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\rng_state.pth",
+            "size_bytes": 14645,
+            "sha256": "1829a31b4ba7f7a7cd40e3d6bbe0a5569b8eef99bec9911be96f202ceb0c0b35"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\scaler.pt",
+            "size_bytes": 1383,
+            "sha256": "f4c1b3cbe0d13a980ddb2844cb264033f6b68eaad23068a0ac2a3d34764181da"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\scheduler.pt",
+            "size_bytes": 1465,
+            "sha256": "ef20521f49ee77b49fb177688c4eb42dad7d7000c204d21bc289a972060c29d7"
+          },
+          {
+            "path": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\trainer_state.json",
+            "size_bytes": 2142,
+            "sha256": "befc3a7c3c45b55945414e7c82651b69e0eebba986a089597ebb053a483ff631"
+          }
+        ],
+        "duplicates": [
+          {
+            "file": "C:\\MahaArogya\\models\\triage_xgboost_baseline\\label_mapping.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\triage_lightgbm_baseline\\label_mapping.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\triage_xgboost_baseline\\preprocessor.pkl",
+            "duplicate_of": "C:\\MahaArogya\\models\\triage_lightgbm_baseline\\preprocessor.pkl"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\tts\\IndicF5\\config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\tts\\config.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\.no_exist\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\tokenizer.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\.no_exist\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\added_tokens.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-mar\\.no_exist\\7af4a6db1df2eb20042d24cc7c180a492df1cc13\\added_tokens.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\.no_exist\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\added_tokens.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-mar\\.no_exist\\7af4a6db1df2eb20042d24cc7c180a492df1cc13\\tokenizer.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\tts\\models--facebook--mms-tts-hin\\.no_exist\\1d83b223ec78e30b944f7d96bd117eb3d7023303\\added_tokens.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\tts\\piper\\hi\\hi_IN\\pratham\\medium\\hi_IN-pratham-medium.onnx.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\tts\\hi\\hi_IN\\pratham\\medium\\hi_IN-pratham-medium.onnx.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\best_model.pt",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_finetuned\\best_model.pt"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\fleurs_eval_results.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_finetuned\\fleurs_eval_results.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\processor_config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_finetuned\\processor_config.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\run_manifest.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_finetuned\\run_manifest.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\tokenizer.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_finetuned\\tokenizer.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_finetuned_v1_decoder_only\\tokenizer_config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_finetuned\\tokenizer_config.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\processor_config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_finetuned\\processor_config.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_finetuned_v2_full\\tokenizer.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_finetuned\\tokenizer.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_small_smoketest\\processor_config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_finetuned\\processor_config.json"
+          }
+        ],
+        "checkpoint_duplicates": [
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_small_smoketest\\config.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\generation_config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_small_smoketest\\generation_config.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-25\\preprocessor_config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_small_smoketest\\preprocessor_config.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_small_smoketest\\config.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\generation_config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_small_smoketest\\generation_config.json"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\model.safetensors",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_small_smoketest\\model.safetensors"
+          },
+          {
+            "file": "C:\\MahaArogya\\models\\whisper_small_smoketest\\checkpoint-50\\preprocessor_config.json",
+            "duplicate_of": "C:\\MahaArogya\\models\\whisper_small_smoketest\\preprocessor_config.json"
+          }
+        ],
+        "inspection_errors": [],
+        "real_duplicate_count": 16,
+        "checkpoint_duplicate_count": 7
+      }
+    },
+    "21_FAILURE_INJECTION": {
+      "status": "PASS",
+      "evidence": {
+        "injection_type": "invalid_modality_to_orchestrator",
+        "exception_type": "ValueError",
+        "exception_message": "Modality must be 'voice' or 'text'",
+        "rejection_occurred": true,
+        "controlled_rejection": true,
+        "post_failure_emergency_result": "EMERGENCY"
+      }
+    },
+    "22_IMMUTABILITY_AUDIT_INTEGRITY": {
+      "status": "PASS",
+      "evidence": {
+        "initial_hash": "0a1e5bc416be1c939aa49d5d67ff13275c9546e073d9e77a28e292a937784bd5",
+        "final_hash": "0a1e5bc416be1c939aa49d5d67ff13275c9546e073d9e77a28e292a937784bd5",
+        "expected_hash": "0a1e5bc416be1c939aa49d5d67ff13275c9546e073d9e77a28e292a937784bd5",
+        "unchanged": true,
+        "matches_manifest": true
+      }
+    }
+  },
+  "overall": "PASS",
+  "metadata": {
+    "audit_version": "6.0.0",
+    "timestamp": "2026-08-18T02:54:58.133893+00:00",
+    "initial_hash": "0a1e5bc416be1c939aa49d5d67ff13275c9546e073d9e77a28e292a937784bd5",
+    "expected_hash": "0a1e5bc416be1c939aa49d5d67ff13275c9546e073d9e77a28e292a937784bd5"
+  }
+}

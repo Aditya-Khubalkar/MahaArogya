@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import DataTable from "@/components/DataTable";
 import { checkinPatient, type PatientQueueEntry } from "@/lib/api";
 
 export default function ReceptionPage() {
@@ -86,47 +87,18 @@ export default function ReceptionPage() {
           <span className="badge badge-info">{queue.length} patients</span>
         </div>
 
-        {queue.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-state-icon">📋</div>
-            <p>No patients in queue. Check in a patient to see them here.</p>
-          </div>
-        ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Token ID</th>
-                <th>Patient ID</th>
-                <th>Department</th>
-                <th>Queue #</th>
-                <th>Status</th>
-                <th>Checked In At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {queue.map((entry) => (
-                <tr key={entry.token_id}>
-                  <td style={{ color: "var(--primary)", fontWeight: 600 }}>{entry.token_id}</td>
-                  <td>{entry.patient_id}</td>
-                  <td>{entry.department_name}</td>
-                  <td style={{ color: "var(--accent)", fontWeight: 700, fontSize: "1.1rem" }}>
-                    {entry.queue_number}
-                  </td>
-                  <td>
-                    <span className={`badge ${getStatusBadge(entry.arrival_status)}`}>
-                      {entry.arrival_status}
-                    </span>
-                  </td>
-                  <td>
-                    {entry.checked_in_at
-                      ? new Date(entry.checked_in_at).toLocaleString()
-                      : "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        <DataTable 
+          columns={[
+            { key: "token_id", header: "Token ID", render: (e: any) => <span style={{ color: "var(--primary)", fontWeight: 600 }}>{e.token_id}</span> },
+            { key: "patient_id", header: "Patient ID" },
+            { key: "department_name", header: "Department" },
+            { key: "queue_number", header: "Queue #", render: (e: any) => <span style={{ color: "var(--accent)", fontWeight: 700, fontSize: "1.1rem" }}>{e.queue_number}</span> },
+            { key: "arrival_status", header: "Status", render: (e: any) => <span className={`badge ${getStatusBadge(e.arrival_status)}`}>{e.arrival_status}</span> },
+            { key: "checked_in_at", header: "Checked In At", render: (e: any) => <span>{e.checked_in_at ? new Date(e.checked_in_at).toLocaleString() : "—"}</span> }
+          ]} 
+          data={queue} 
+          emptyMessage="No patients in queue. Check in a patient to see them here." 
+        />
       </div>
 
       {/* Status Legend */}

@@ -120,8 +120,11 @@ class MedicalExtractor:
         if re.search(r"slurred speech|dysarthria|difficulty speaking|speech difficulty", text_lower):
             extracted_answers["slurred_speech"] = True
 
-        if re.search(r"facial droop|facial drooping|arm weakness|face droop", text_lower):
-            extracted_answers["slurred_speech"] = True
+        if re.search(r"facial droop|facial drooping|face droop", text_lower):
+            extracted_answers["facial_droop"] = True
+
+        if re.search(r"arm weakness", text_lower):
+            extracted_answers["arm_weakness"] = True
 
         if re.search(r"neck stiffness|nuchal rigidity|stiff neck", text_lower):
             extracted_answers["neck_stiffness"] = True

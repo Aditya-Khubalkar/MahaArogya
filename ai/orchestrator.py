@@ -23,6 +23,25 @@ from ai.triage.schemas import TriageDecision
 from ai.routing.router import HospitalRouter
 from ai.routing.schemas import HospitalRecommendation
 
+SYMPTOM_DEPARTMENT_MAP = {
+    "abdominal_pain": "Gastroenterology",
+    "chest_pain": "Cardiology",
+    "breathlessness": "Pulmonology",
+    "headache": "Neurology",
+    "joint_pain": "Orthopedics",
+    "burning_urination": "Urology",
+    "sore_throat": "ENT",
+    "fever": "General Medicine",
+    "vomiting": "Gastroenterology",
+    "diarrhea": "Gastroenterology",
+    "dizziness": "Neurology",
+    "numbness": "Neurology",
+    "cough": "Pulmonology",
+    "swelling": "General Medicine",
+    "fatigue": "General Medicine",
+    "nausea": "Gastroenterology",
+}
+
 
 class UnifiedTurnResponse(BaseModel):
     conversation_id: str
@@ -102,7 +121,11 @@ class MahaArogyaOrchestrator:
         # Step 5: Rank suitable hospitals if triage is ready or emergency
         hosp_recs = []
         if q_res.is_ready_for_triage or triage_decision.triage_category in ["EMERGENCY", "URGENT"]:
-            target_dept = "Gastroenterology" if "abdominal_pain" in state.symptoms else "General Medicine"
+            target_dept = "General Medicine"
+            for symptom_key in SYMPTOM_DEPARTMENT_MAP:
+                if symptom_key in state.symptoms:
+                    target_dept = SYMPTOM_DEPARTMENT_MAP[symptom_key]
+                    break
             hosp_recs = self.router.rank_hospitals(
                 triage_category=triage_decision.triage_category,
                 target_department=target_dept,

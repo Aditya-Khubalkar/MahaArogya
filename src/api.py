@@ -1,4 +1,3 @@
-﻿import torch
 """
 MahaArogya — FastAPI Local API Server
 Exposes clean local API interfaces for integration per technical spec deliverables.
@@ -9,10 +8,20 @@ import time
 from collections import defaultdict
 from threading import Lock
 from typing import Optional, List, Dict, Tuple
+import logging
+import redis
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logger = logging.getLogger("maha_api")
+
 
 from ai.orchestrator import MahaArogyaOrchestrator, UnifiedTurnResponse
 from ai.asr.service import get_asr_service
@@ -23,15 +32,26 @@ from ai.cv.schemas import CCTVOccupancyResult
 from ai.routing.opd_token import OPDTokenGenerator
 from ai.routing.schemas import OPDToken
 
-from src.rbac.models import AuthUser, UserRole, Permission, get_authenticated_user
+from src.rbac.models import AuthUser, UserRole, Permission, get_authenticated_user, get_current_user
 from src.rbac.middleware import enforce_permission
 from src.reception.workflow import ReceptionWorkflowManager, PatientQueueEntry
+
+from src.routers import hospitals, queue, roles, dashboard, ward, doctor, admin, govt
 
 app = FastAPI(
     title="MahaArogya (Sanjeevani Grid) AI Subsystem API",
     description="Healthcare-routing AI/ML subsystem local API server",
     version="1.0.0"
 )
+
+app.include_router(hospitals.router)
+app.include_router(queue.router)
+app.include_router(roles.router)
+app.include_router(dashboard.router)
+app.include_router(ward.router)
+app.include_router(doctor.router)
+app.include_router(admin.router)
+app.include_router(govt.router)
 
 
 class InMemoryRateLimiter:
@@ -61,6 +81,7 @@ class InMemoryRateLimiter:
             self._history[key] = [t for t in self._history[key] if t > cutoff]
 
             if len(self._history[key]) >= limit:
+                logger.warning(f"Rate limit exceeded (InMemory) for IP {client_ip} on {endpoint_key}")
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                     detail=f"Too Many Requests: Maximum {limit} requests allowed per {effective_window}s on endpoint '{endpoint_key}'."
@@ -69,7 +90,63 @@ class InMemoryRateLimiter:
             self._history[key].append(now)
 
 
-rate_limiter = InMemoryRateLimiter()
+class RedisRateLimiter:
+    """Redis-backed sliding-window IP rate limiter."""
+    def __init__(self, redis_url="redis://localhost:6379", fallback_to_memory=True):
+        self.redis_url = redis_url
+        self.fallback = fallback_to_memory
+        self.test_window_override: Optional[int] = None
+        self._memory_fallback = InMemoryRateLimiter()
+        try:
+            self.r = redis.Redis.from_url(redis_url, decode_responses=True)
+            self.r.ping()
+            self.use_redis = True
+            logger.info("Connected to Redis for rate limiting.")
+        except redis.ConnectionError:
+            if self.fallback:
+                logger.warning(f"Failed to connect to Redis at {redis_url}. Falling back to InMemoryRateLimiter.")
+                self.use_redis = False
+            else:
+                raise
+
+    def reset(self):
+        """Clears rate limit history (useful for test isolation)."""
+        if self.use_redis:
+            self.r.flushdb()
+        else:
+            self._memory_fallback.reset()
+
+    def enforce_rate_limit(self, request: Request, endpoint_key: str, limit: int, window_seconds: int):
+        effective_window = self.test_window_override if self.test_window_override is not None else window_seconds
+        if not self.use_redis:
+            return self._memory_fallback.enforce_rate_limit(request, endpoint_key, limit, effective_window)
+
+        client_ip = request.client.host if request.client else "127.0.0.1"
+        if "x-forwarded-for" in request.headers:
+            client_ip = request.headers["x-forwarded-for"].split(",")[0].strip()
+
+        key = f"rate_limit:{client_ip}:{endpoint_key}"
+        now = time.time()
+        cutoff = now - effective_window
+
+        # Use a Redis pipeline for atomicity
+        pipeline = self.r.pipeline()
+        pipeline.zremrangebyscore(key, 0, cutoff)
+        pipeline.zcard(key)
+        pipeline.zadd(key, {str(now): now})
+        pipeline.expire(key, effective_window)
+        results = pipeline.execute()
+
+        current_requests = results[1]
+
+        if current_requests >= limit:
+            logger.warning(f"Rate limit exceeded (Redis) for IP {client_ip} on {endpoint_key}")
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Too Many Requests: Maximum {limit} requests allowed per {effective_window}s on endpoint '{endpoint_key}'."
+            )
+
+rate_limiter = RedisRateLimiter()
 
 
 # Global ValueError exception handler returning HTTP 400 Bad Request
@@ -88,10 +165,10 @@ def key_error_exception_handler(request: Request, exc: KeyError):
         content={"detail": str(exc)}
     )
 
-# CORS — allow Next.js frontend
+# CORS — allow Next.js frontend (dev on port 3000 or 3001, Docker on 3000)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -106,6 +183,7 @@ reception_mgr = ReceptionWorkflowManager()
 def detect_gpu_device() -> str:
     """Dynamically detects available GPU device or returns CPU fallback descriptor."""
     try:
+        import torch
         if torch.cuda.is_available():
             name = torch.cuda.get_device_name(0)
             return name if "nvidia" in name.lower() else f"NVIDIA {name}"
@@ -124,16 +202,37 @@ def health_check():
         "version": "1.0.0"
     }
 
+class DemoLoginRequest(BaseModel):
+    user_id: str
+
+@app.post("/api/v1/auth/demo-login")
+def demo_login(req: DemoLoginRequest):
+    """Demo mode login that returns a JWT token for the selected role."""
+    from src.rbac.models import get_authenticated_user, create_access_token
+    from datetime import timedelta
+    
+    # Verify user exists
+    user = get_authenticated_user(req.user_id)
+    
+    # Create token
+    access_token_expires = timedelta(minutes=24 * 60)
+    access_token = create_access_token(
+        data={"sub": user.user_id, "role": user.role.value},
+        expires_delta=access_token_expires
+    )
+    
+    return {"access_token": access_token, "token_type": "bearer", "user": user.model_dump()}
+
 
 class TextTurnRequest(BaseModel):
     conversation_id: Optional[str] = None
-    text_input: str = Field(..., min_length=1, description="Patient text statement")
+    text_input: str = Field(..., min_length=1, max_length=5000, description="Patient text statement")
     language: str = Field(default="mr", min_length=2)
     patient_lat: float = Field(default=19.0100, ge=-90.0, le=90.0)
     patient_lon: float = Field(default=72.8500, ge=-180.0, le=180.0)
 
 
-@app.post("/api/conversation/turn", response_model=UnifiedTurnResponse)
+@app.post("/api/v1/conversation/turn", response_model=UnifiedTurnResponse)
 def process_conversation_turn(req: TextTurnRequest, request: Request):
     """Handles a text conversation turn through the unified AI engine. Rate limited: max 30 per 10 mins per IP."""
     rate_limiter.enforce_rate_limit(request, endpoint_key="conversation_turn", limit=30, window_seconds=600)
@@ -155,15 +254,12 @@ class CCTVRequest(BaseModel):
     total_beds: int = Field(..., gt=0)
     db_authoritative_occupied: int = Field(..., ge=0)
     confidence: float = Field(default=0.88, ge=0.0, le=1.0)
-    staff_user_id: Optional[str] = None
 
 
-@app.post("/api/cctv/estimate", response_model=CCTVOccupancyResult)
-def estimate_cctv_occupancy(req: CCTVRequest):
+@app.post("/api/v1/cctv/estimate", response_model=CCTVOccupancyResult)
+def estimate_cctv_occupancy(req: CCTVRequest, user: AuthUser = Depends(get_current_user)):
     """Estimates ward bed occupancy from CCTV input (Staff route, not rate-limited)."""
-    if req.staff_user_id:
-        user = get_authenticated_user(req.staff_user_id)
-        enforce_permission(user, Permission.UPDATE_BED_STATUS)
+    enforce_permission(user, Permission.UPDATE_BED_STATUS)
 
     return cv_estimator.estimate_ward_occupancy(
         camera_id=req.camera_id,
@@ -183,7 +279,7 @@ class IssueTokenRequest(BaseModel):
     current_queue_length: int = Field(default=5, ge=0)
 
 
-@app.post("/api/opd/issue_token", response_model=OPDToken)
+@app.post("/api/v1/opd/issue_token", response_model=OPDToken)
 def issue_opd_token(req: IssueTokenRequest, request: Request):
     """Issues a smart OPD token. Rate limited: max 5 per 10 mins per IP."""
     rate_limiter.enforce_rate_limit(request, endpoint_key="issue_token", limit=5, window_seconds=600)
@@ -201,13 +297,10 @@ def issue_opd_token(req: IssueTokenRequest, request: Request):
 
 class CheckinRequest(BaseModel):
     token_id: str = Field(..., min_length=1)
-    staff_user_id: Optional[str] = Field(default=None, description="Authentic reception staff user ID")
 
-
-@app.post("/api/reception/checkin", response_model=PatientQueueEntry)
-def reception_checkin(req: CheckinRequest):
+@app.post("/api/v1/reception/checkin", response_model=PatientQueueEntry)
+def reception_checkin(req: CheckinRequest, user: AuthUser = Depends(get_current_user)):
     """Reception endpoint: Marks patient token as CHECKED_IN (Staff route, not rate-limited)."""
-    user = get_authenticated_user(req.staff_user_id)
     enforce_permission(user, Permission.CHECKIN_PATIENT)
 
     try:

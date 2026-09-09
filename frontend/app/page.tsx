@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import StatCard from "@/components/StatCard";
 import TriageBadge from "@/components/TriageBadge";
-import { checkHealth, type HealthStatus } from "@/lib/api";
+import { checkHealth, type HealthStatus, getDashboardStats } from "@/lib/api";
+import { useRole } from "@/lib/roles";
 
 interface ActivityItem {
   id: string;
@@ -14,24 +15,21 @@ interface ActivityItem {
 }
 
 export default function DashboardPage() {
+  const { role } = useRole();
   const [health, setHealth] = useState<HealthStatus | null>(null);
-  const [activities] = useState<ActivityItem[]>([
-    { id: "1", type: "TRIAGE", message: "Patient triaged as PRIORITY — Gastroenterology referral", time: "2 min ago", badge: "PRIORITY" },
-    { id: "2", type: "OPD", message: "OPD Token OPD-MUM-4521 issued for KEM Hospital", time: "5 min ago", badge: "ROUTINE" },
-    { id: "3", type: "CHECKIN", message: "Patient checked in at Sion Hospital reception", time: "8 min ago", badge: "ROUTINE" },
-    { id: "4", type: "EMERGENCY", message: "Red-flag detected: chest pain + breathlessness", time: "12 min ago", badge: "EMERGENCY" },
-    { id: "5", type: "CCTV", message: "Ward B2 occupancy discrepancy — human verification flagged", time: "15 min ago", badge: "URGENT" },
-  ]);
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
     checkHealth().then(setHealth).catch(() => setHealth(null));
+    getDashboardStats().then(setStats).catch(console.error);
   }, []);
 
-  const triageBreakdown = [
-    { category: "ROUTINE", count: 42, pct: 52, color: "var(--routine)" },
-    { category: "PRIORITY", count: 24, pct: 30, color: "var(--priority)" },
-    { category: "URGENT", count: 10, pct: 12, color: "var(--urgent)" },
-    { category: "EMERGENCY", count: 5, pct: 6, color: "var(--emergency)" },
+  const activities: ActivityItem[] = stats?.recent_activity || [];
+  const triageBreakdown = stats?.triage_distribution || [
+    { category: "ROUTINE", count: 0, pct: 0, color: "var(--routine)" },
+    { category: "PRIORITY", count: 0, pct: 0, color: "var(--priority)" },
+    { category: "URGENT", count: 0, pct: 0, color: "var(--urgent)" },
+    { category: "EMERGENCY", count: 0, pct: 0, color: "var(--emergency)" },
   ];
 
   return (
@@ -54,13 +52,13 @@ export default function DashboardPage() {
           />
         </div>
         <div className="animate-in animate-in-delay-2">
-          <StatCard icon="💬" label="Active Sessions" value={12} subtitle="Conversations today" color="var(--accent)" />
+          <StatCard icon="💬" label="Active Sessions" value={stats?.active_sessions || 0} subtitle="Conversations today" color="var(--accent)" />
         </div>
         <div className="animate-in animate-in-delay-3">
-          <StatCard icon="🎫" label="OPD Tokens Issued" value={81} subtitle="Today" color="var(--priority)" />
+          <StatCard icon="🎫" label="OPD Tokens Issued" value={stats?.opd_tokens_issued || 0} subtitle="Today" color="var(--priority)" />
         </div>
         <div className="animate-in animate-in-delay-4">
-          <StatCard icon="⚡" label="Avg Latency" value="0.34s" subtitle="Per conversation turn" color="var(--urgent)" />
+          <StatCard icon="⚡" label="Avg Latency" value={stats?.avg_latency || "0.0s"} subtitle="Per conversation turn" color="var(--urgent)" />
         </div>
       </div>
 
@@ -69,7 +67,7 @@ export default function DashboardPage() {
         <div className="glass-card animate-in animate-in-delay-2">
           <h3 style={{ marginBottom: 20 }}>Triage Distribution</h3>
           <div className="triage-bars">
-            {triageBreakdown.map((item) => (
+            {triageBreakdown.map((item: any) => (
               <div key={item.category} className="triage-row">
                 <div className="triage-row-header">
                   <TriageBadge category={item.category} />
@@ -111,11 +109,15 @@ export default function DashboardPage() {
         <h3 style={{ marginBottom: 16, marginTop: 32 }}>Quick Actions</h3>
         <div className="action-grid">
           {[
-            { href: "/conversation", icon: "💬", label: "Start Conversation", desc: "Begin patient intake" },
-            { href: "/opd", icon: "🎫", label: "Issue OPD Token", desc: "Generate appointment token" },
-            { href: "/reception", icon: "🏥", label: "Patient Check-in", desc: "Reception desk workflow" },
-            { href: "/cctv", icon: "📹", label: "CCTV Monitor", desc: "Ward bed occupancy" },
-          ].map((action) => (
+            { href: "/conversation", icon: "💬", label: "Start Conversation", desc: "Begin patient intake", roles: ["public"] },
+            { href: "/opd", icon: "🎫", label: "Issue OPD Token", desc: "Generate appointment token", roles: ["public"] },
+            { href: "/reception", icon: "🏥", label: "Patient Check-in", desc: "Reception desk workflow", roles: ["reception", "hospital_admin"] },
+            { href: "/live-queue", icon: "⏱️", label: "Live Queue", desc: "View waiting list", roles: ["public", "reception", "nurse", "doctor", "hospital_admin"] },
+            { href: "/hospitals", icon: "🗺️", label: "Hospital Finder", desc: "Find nearest hospital", roles: ["public", "reception"] },
+            { href: "/cctv", icon: "📹", label: "CCTV Monitor", desc: "Ward bed occupancy", roles: ["hospital_admin", "hospital_head", "district_officer", "government"] },
+            { href: "/nurse-ward", icon: "🛏️", label: "Nurse Ward", desc: "Patient monitoring", roles: ["nurse", "hospital_admin", "doctor"] },
+            { href: "/doctor-queue", icon: "👨‍⚕️", label: "Doctor Queue", desc: "Consultation workflow", roles: ["doctor", "hospital_admin"] },
+          ].filter(action => action.roles.includes(role)).map((action) => (
             <Link key={action.href} href={action.href} className="action-card glass-card glass-card-interactive">
               <span className="action-icon">{action.icon}</span>
               <span className="action-label">{action.label}</span>

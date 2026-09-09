@@ -1,0 +1,1063 @@
+// MahaArogya — Sanjeevani Grid
+// Complete Prisma Schema
+// PostgreSQL 17
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum UserRole {
+  PUBLIC_PATIENT
+  DOCTOR
+  NURSE
+  RECEPTION
+  HOSPITAL_ADMIN
+  HOSPITAL_HEAD
+  DISTRICT_HEALTH_OFFICER
+  GOVERNMENT_OFFICIAL
+  SYSTEM_ADMIN
+}
+
+enum HospitalStatus {
+  ACTIVE
+  INACTIVE
+  EMERGENCY_ONLY
+  UNDER_MAINTENANCE
+}
+
+enum DepartmentStatus {
+  ACTIVE
+  INACTIVE
+  TEMPORARILY_CLOSED
+}
+
+enum BedType {
+  GENERAL_BED
+  ICU_BED
+  EMERGENCY_BED
+  MATERNITY_BED
+  PEDIATRIC_BED
+  ISOLATION_BED
+  OTHER
+}
+
+enum BedStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  HELD
+  MAINTENANCE
+  UNKNOWN
+}
+
+enum ResourceType {
+  OXYGEN_CYLINDER
+  OXYGEN_CONCENTRATOR
+  VENTILATOR
+  DEFIBRILLATOR
+  ECG_MACHINE
+  INFUSION_PUMP
+  OTHER
+}
+
+enum ResourceStatus {
+  AVAILABLE
+  IN_USE
+  HELD
+  MAINTENANCE
+  UNAVAILABLE
+}
+
+enum AppointmentStatus {
+  BOOKED
+  CONFIRMED
+  ARRIVED
+  IN_CONSULTATION
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+enum OPDSlotStatus {
+  OPEN
+  NEAR_FULL
+  FULL
+  CLOSED
+  CANCELLED
+}
+
+enum TokenStatus {
+  GENERATED
+  CALLED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  CANCELLED
+}
+
+enum PatientArrivalStatus {
+  EXPECTED
+  ARRIVED
+  CHECKED_IN
+  WAITING
+  IN_CONSULTATION
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+}
+
+enum TriageCategory {
+  ROUTINE
+  PRIORITY
+  URGENT
+  EMERGENCY
+}
+
+enum EmergencyCaseStatus {
+  ACTIVE
+  RESOURCE_HELD
+  ADMITTED
+  RESOLVED
+  CANCELLED
+}
+
+enum ResourceHoldStatus {
+  ACTIVE
+  CONFIRMED
+  EXPIRED
+  CANCELLED
+  RELEASED
+}
+
+enum AIConversationMode {
+  TEXT
+  VOICE
+}
+
+enum AIConversationStatus {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+  TRIAGED
+}
+
+enum CCTVOccupancyStatus {
+  AVAILABLE
+  OCCUPIED
+  UNKNOWN
+  BLOCKED
+}
+
+enum NotificationType {
+  APPOINTMENT_CREATED
+  APPOINTMENT_UPDATED
+  APPOINTMENT_CANCELLED
+  PATIENT_ARRIVED
+  QUEUE_UPDATED
+  EMERGENCY_ALERT
+  RESOURCE_CHANGED
+  BED_AVAILABLE
+  RESOURCE_HOLD_CREATED
+  RESOURCE_HOLD_EXPIRED
+  CCTV_DISCREPANCY
+  SYSTEM_ALERT
+  TRIAGE_COMPLETED
+  OPD_SLOT_FULL
+}
+
+enum NotificationChannel {
+  IN_APP
+  WEBSOCKET
+  EMAIL
+  SMS
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  READ
+  FAILED
+}
+
+enum LocationVerificationStatus {
+  SYNTHETIC
+  UNVERIFIED
+  VERIFIED
+  DISPUTED
+}
+
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  SUSPENDED
+}
+
+// ============================================================
+// GEOGRAPHY
+// ============================================================
+
+model State {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  code       String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  districts  District[]
+  hospitals  Hospital[]
+
+  @@map("states")
+}
+
+model District {
+  id         String   @id @default(uuid())
+  name       String
+  code       String?
+  stateId    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  state      State    @relation(fields: [stateId], references: [id])
+  cities     City[]
+  hospitals  Hospital[]
+  dhos       User[]   @relation("DHODistrict")
+
+  @@unique([name, stateId])
+  @@map("districts")
+}
+
+model City {
+  id         String   @id @default(uuid())
+  name       String
+  districtId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  district   District @relation(fields: [districtId], references: [id])
+  hospitals  Hospital[]
+
+  @@unique([name, districtId])
+  @@map("cities")
+}
+
+// ============================================================
+// USERS & AUTH
+// ============================================================
+
+model User {
+  id              String    @id @default(uuid())
+  demoUsername    String    @unique
+  displayName     String
+  role            UserRole
+  // Scoping fields
+  hospitalId      String?
+  departmentId    String?
+  districtId      String?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  hospital        Hospital?   @relation("UserHospital", fields: [hospitalId], references: [id])
+  department      Department? @relation("UserDepartment", fields: [departmentId], references: [id])
+  district        District?   @relation("DHODistrict", fields: [districtId], references: [id])
+
+  demoSessions    DemoSession[]
+  patientProfile  PatientProfile?
+  doctorProfile   DoctorProfile?
+  nurseProfile    NurseProfile?
+  receptionProfile ReceptionProfile?
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+model DemoSession {
+  id          String   @id @default(uuid())
+  userId      String
+  token       String   @unique
+  role        UserRole
+  hospitalId  String?
+  departmentId String?
+  districtId  String?
+  permissions String[] // JSON array of permission strings
+  expiresAt   DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([token])
+  @@map("demo_sessions")
+}
+
+// ============================================================
+// PATIENTS
+// ============================================================
+
+model PatientProfile {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  patientCode     String    @unique // e.g. PAT-2024-00001
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime?
+  gender          String?
+  bloodGroup      String?
+  phoneNumber     String?
+  emergencyContact String?
+  address         String?
+  city            String?
+  district        String?
+  state           String?
+  pincode         String?
+  // Soft delete
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user                User               @relation(fields: [userId], references: [id])
+  appointments        Appointment[]
+  aiConversations     AIConversation[]
+  triageAssessments   TriageAssessment[]
+  emergencyCases      EmergencyCase[]
+  locationRequests    LocationRequest[]
+
+  @@map("patient_profiles")
+}
+
+// ============================================================
+// HOSPITALS
+// ============================================================
+
+model Hospital {
+  id                      String         @id @default(uuid())
+  name                    String
+  shortName               String?
+  hospitalCode            String         @unique
+  type                    String         @default("GOVERNMENT") // GOVERNMENT, PRIVATE, TRUST
+  status                  HospitalStatus @default(ACTIVE)
+  hasEmergencyDepartment  Boolean        @default(false)
+  emergencyContact        String?
+  generalContact          String?
+  email                   String?
+  website                 String?
+  // Location
+  latitude                Float?
+  longitude               Float?
+  address                 String?
+  cityId                  String?
+  districtId              String?
+  stateId                 String?
+  locationSource          String?        @default("SYNTHETIC")
+  locationVerified        LocationVerificationStatus @default(SYNTHETIC)
+  // Notes
+  notes                   String?
+  isSyntheticDemo         Boolean        @default(true)
+  deletedAt               DateTime?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+
+  city        City?       @relation(fields: [cityId], references: [id])
+  district    District?   @relation(fields: [districtId], references: [id])
+  state       State?      @relation(fields: [stateId], references: [id])
+  users       User[]      @relation("UserHospital")
+
+  departments         Department[]
+  beds                Bed[]
+  hospitalResources   HospitalResource[]
+  opdSlots            OPDSlot[]
+  appointments        Appointment[]
+  emergencyCases      EmergencyCase[]
+  emergencyRoutings   EmergencyRouting[]
+  cctvDevices         CCTVDevice[]
+  analyticsSnapshots  AnalyticsSnapshot[]
+
+  @@index([latitude, longitude])
+  @@index([districtId])
+  @@map("hospitals")
+}
+
+// ============================================================
+// DEPARTMENTS
+// ============================================================
+
+model Department {
+  id           String           @id @default(uuid())
+  name         String
+  code         String
+  hospitalId   String
+  status       DepartmentStatus @default(ACTIVE)
+  description  String?
+  floorNumber  String?
+  contactExt   String?
+  deletedAt    DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  hospital     Hospital         @relation(fields: [hospitalId], references: [id])
+  users        User[]           @relation("UserDepartment")
+  doctorProfiles DoctorProfile[]
+  nurseProfiles  NurseProfile[]
+  receptionProfiles ReceptionProfile[]
+  opdSlots     OPDSlot[]
+  appointments Appointment[]
+
+  @@unique([code, hospitalId])
+  @@map("departments")
+}
+
+// ============================================================
+// STAFF PROFILES
+// ============================================================
+
+model DoctorProfile {
+  id               String      @id @default(uuid())
+  userId           String      @unique
+  employeeCode     String      @unique
+  qualification    String?
+  specialization   String?
+  licenseNumber    String?
+  hospitalId       String?
+  departmentId     String?
+  status           StaffStatus @default(ACTIVE)
+  avgConsultationMinutes Int   @default(10)
+  deletedAt        DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  user             User        @relation(fields: [userId], references: [id])
+  department       Department? @relation(fields: [departmentId], references: [id])
+  opdSlots         OPDSlot[]
+  appointments     Appointment[]
+  consultations    Consultation[]
+
+  @@map("doctor_profiles")
+}
+
+model NurseProfile {
+  id           String      @id @default(uuid())
+  userId       String      @unique
+  employeeCode String      @unique
+  qualification String?
+  hospitalId   String?
+  departmentId String?
+  status       StaffStatus @default(ACTIVE)
+  deletedAt    DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user         User        @relation(fields: [userId], references: [id])
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  @@map("nurse_profiles")
+}
+
+model ReceptionProfile {
+  id           String      @id @default(uuid())
+  userId       String      @unique
+  employeeCode String      @unique
+  hospitalId   String?
+  departmentId String?
+  status       StaffStatus @default(ACTIVE)
+  deletedAt    DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user         User        @relation(fields: [userId], references: [id])
+  department   Department? @relation(fields: [departmentId], references: [id])
+  patientArrivals PatientArrival[]
+
+  @@map("reception_profiles")
+}
+
+// ============================================================
+// OPD / APPOINTMENTS / TOKENS
+// ============================================================
+
+model OPDSlot {
+  id            String        @id @default(uuid())
+  hospitalId    String
+  departmentId  String
+  doctorId      String?       // null = any available doctor
+  date          DateTime      @db.Date
+  startTime     String        // "09:00"
+  endTime       String        // "09:30"
+  capacity      Int           @default(20)
+  bookedCount   Int           @default(0)
+  status        OPDSlotStatus @default(OPEN)
+  slotCode      String        @unique
+  deletedAt     DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  hospital      Hospital      @relation(fields: [hospitalId], references: [id])
+  department    Department    @relation(fields: [departmentId], references: [id])
+  doctor        DoctorProfile? @relation(fields: [doctorId], references: [id])
+  appointments  Appointment[]
+
+  @@index([hospitalId, date, status])
+  @@index([departmentId, date, status])
+  @@map("opd_slots")
+}
+
+model Appointment {
+  id              String            @id @default(uuid())
+  appointmentCode String            @unique
+  patientId       String
+  hospitalId      String
+  departmentId    String
+  doctorId        String?
+  slotId          String?
+  status          AppointmentStatus @default(BOOKED)
+  appointmentDate DateTime
+  reason          String?
+  notes           String?
+  source          String            @default("ONLINE") // ONLINE, OFFLINE, EMERGENCY
+  deletedAt       DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  patient         PatientProfile    @relation(fields: [patientId], references: [id])
+  hospital        Hospital          @relation(fields: [hospitalId], references: [id])
+  department      Department        @relation(fields: [departmentId], references: [id])
+  doctor          DoctorProfile?    @relation(fields: [doctorId], references: [id])
+  slot            OPDSlot?          @relation(fields: [slotId], references: [id])
+  token           OPDToken?
+  arrival         PatientArrival?
+  consultation    Consultation?
+
+  @@index([patientId, status])
+  @@index([hospitalId, appointmentDate])
+  @@map("appointments")
+}
+
+model OPDToken {
+  id              String      @id @default(uuid())
+  appointmentId   String      @unique
+  tokenNumber     Int
+  displayCode     String      // e.g. "GM-042"
+  status          TokenStatus @default(GENERATED)
+  estimatedWaitMinutes Int?
+  calledAt        DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  appointment     Appointment @relation(fields: [appointmentId], references: [id])
+
+  @@map("opd_tokens")
+}
+
+model PatientArrival {
+  id              String               @id @default(uuid())
+  appointmentId   String               @unique
+  status          PatientArrivalStatus @default(EXPECTED)
+  arrivedAt       DateTime?
+  checkedInAt     DateTime?
+  markedBy        String?              // receptionProfileId
+  isOfflineArrival Boolean             @default(false)
+  notes           String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  appointment     Appointment          @relation(fields: [appointmentId], references: [id])
+  markedByStaff   ReceptionProfile?    @relation(fields: [markedBy], references: [id])
+
+  @@map("patient_arrivals")
+}
+
+model Consultation {
+  id              String      @id @default(uuid())
+  appointmentId   String      @unique
+  doctorId        String
+  startedAt       DateTime?
+  completedAt     DateTime?
+  durationMinutes Int?
+  diagnosis       String?
+  prescription    String?
+  followUpDate    DateTime?
+  notes           String?
+  status          String      @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  appointment     Appointment   @relation(fields: [appointmentId], references: [id])
+  doctor          DoctorProfile @relation(fields: [doctorId], references: [id])
+
+  @@map("consultations")
+}
+
+// ============================================================
+// TRIAGE
+// ============================================================
+
+model TriageAssessment {
+  id              String         @id @default(uuid())
+  patientId       String
+  conversationId  String?
+  category        TriageCategory
+  confidence      Float          @default(0.0)
+  symptoms        Json           // Array of symptom strings
+  primarySymptom  String?
+  recommendedDepartment String?
+  safetySignals   Json?          // Safety flags from AI
+  rawAIOutput     Json?
+  isAIMock        Boolean        @default(true)
+  modelVersion    String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  patient         PatientProfile @relation(fields: [patientId], references: [id])
+  conversation    AIConversation? @relation(fields: [conversationId], references: [id])
+  emergencyCases  EmergencyCase[]
+
+  @@map("triage_assessments")
+}
+
+// ============================================================
+// BEDS & RESOURCES
+// ============================================================
+
+model Bed {
+  id              String    @id @default(uuid())
+  bedCode         String    @unique
+  hospitalId      String
+  wardName        String?
+  floorNumber     String?
+  bedType         BedType   @default(GENERAL_BED)
+  status          BedStatus @default(AVAILABLE)
+  isSyntheticDemo Boolean   @default(true)
+  notes           String?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  hospital          Hospital          @relation(fields: [hospitalId], references: [id])
+  statusHistory     BedStatusHistory[]
+  cameraMappings    BedCameraMapping[]
+  resourceHolds     ResourceHold[]    @relation("BedResourceHold")
+
+  @@index([hospitalId, status, bedType])
+  @@map("beds")
+}
+
+model BedStatusHistory {
+  id          String    @id @default(uuid())
+  bedId       String
+  oldStatus   BedStatus
+  newStatus   BedStatus
+  changedBy   String?   // userId
+  reason      String?
+  source      String    @default("MANUAL") // MANUAL, CCTV, SYSTEM
+  createdAt   DateTime  @default(now())
+
+  bed         Bed       @relation(fields: [bedId], references: [id])
+
+  @@index([bedId])
+  @@map("bed_status_history")
+}
+
+model HospitalResource {
+  id              String         @id @default(uuid())
+  resourceCode    String         @unique
+  hospitalId      String
+  resourceType    ResourceType
+  status          ResourceStatus @default(AVAILABLE)
+  totalCount      Int            @default(1)
+  availableCount  Int            @default(1)
+  notes           String?
+  isSyntheticDemo Boolean        @default(true)
+  deletedAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  hospital          Hospital             @relation(fields: [hospitalId], references: [id])
+  statusHistory     ResourceStatusHistory[]
+  resourceHolds     ResourceHold[]
+
+  @@index([hospitalId, resourceType, status])
+  @@map("hospital_resources")
+}
+
+model ResourceStatusHistory {
+  id          String         @id @default(uuid())
+  resourceId  String
+  oldStatus   ResourceStatus
+  newStatus   ResourceStatus
+  changedBy   String?
+  reason      String?
+  source      String         @default("MANUAL")
+  createdAt   DateTime       @default(now())
+
+  resource    HospitalResource @relation(fields: [resourceId], references: [id])
+
+  @@index([resourceId])
+  @@map("resource_status_history")
+}
+
+// ============================================================
+// EMERGENCY
+// ============================================================
+
+model EmergencyCase {
+  id              String               @id @default(uuid())
+  caseCode        String               @unique
+  patientId       String
+  triageId        String?
+  hospitalId      String?              // Assigned hospital (after routing)
+  status          EmergencyCaseStatus  @default(ACTIVE)
+  symptoms        Json?
+  patientLatitude Float?
+  patientLongitude Float?
+  notes           String?
+  resolvedAt      DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  patient         PatientProfile       @relation(fields: [patientId], references: [id])
+  triage          TriageAssessment?    @relation(fields: [triageId], references: [id])
+  hospital        Hospital?            @relation(fields: [hospitalId], references: [id])
+  resourceHolds   ResourceHold[]
+  routings        EmergencyRouting[]
+
+  @@index([status])
+  @@map("emergency_cases")
+}
+
+model EmergencyRouting {
+  id              String   @id @default(uuid())
+  emergencyCaseId String
+  hospitalId      String
+  distanceKm      Float?
+  estimatedMinutes Float?
+  routingScore    Float?
+  reasons         String[] // e.g. ["ICU available", "Emergency dept active"]
+  isSelected      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  emergencyCase   EmergencyCase @relation(fields: [emergencyCaseId], references: [id])
+  hospital        Hospital      @relation(fields: [hospitalId], references: [id])
+
+  @@map("emergency_routings")
+}
+
+model ResourceHold {
+  id              String             @id @default(uuid())
+  holdCode        String             @unique
+  emergencyCaseId String
+  resourceId      String?            // HospitalResource hold
+  bedId           String?            // Bed hold
+  status          ResourceHoldStatus @default(ACTIVE)
+  expiresAt       DateTime
+  confirmedAt     DateTime?
+  releasedAt      DateTime?
+  notes           String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  emergencyCase   EmergencyCase    @relation(fields: [emergencyCaseId], references: [id])
+  resource        HospitalResource? @relation(fields: [resourceId], references: [id])
+  bed             Bed?             @relation("BedResourceHold", fields: [bedId], references: [id])
+
+  @@index([status, expiresAt])
+  @@map("resource_holds")
+}
+
+// ============================================================
+// AI CONVERSATIONS
+// ============================================================
+
+model AIConversation {
+  id              String               @id @default(uuid())
+  patientId       String
+  mode            AIConversationMode   @default(TEXT)
+  language        String               @default("en")
+  status          AIConversationStatus @default(ACTIVE)
+  isAIMock        Boolean              @default(true)
+  modelVersion    String?
+  triageCategory  TriageCategory?
+  startedAt       DateTime             @default(now())
+  completedAt     DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  patient         PatientProfile     @relation(fields: [patientId], references: [id])
+  messages        AIMessage[]
+  patientStates   PatientStateSnapshot[]
+  triageAssessments TriageAssessment[]
+
+  @@index([patientId, status])
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id              String   @id @default(uuid())
+  conversationId  String
+  role            String   // "patient" | "ai"
+  content         String
+  audioUrl        String?  // For voice mode
+  language        String?
+  detectedLanguage String?
+  metadata        Json?    // extracted entities etc.
+  createdAt       DateTime @default(now())
+
+  conversation    AIConversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId])
+  @@map("ai_messages")
+}
+
+model PatientStateSnapshot {
+  id              String   @id @default(uuid())
+  conversationId  String
+  turnNumber      Int
+  language        String?
+  modality        String?
+  symptoms        Json?
+  bodyLocations   Json?
+  onset           String?
+  duration        String?
+  severity        String?
+  progression     String?
+  frequency       String?
+  associatedSymptoms Json?
+  negations       Json?
+  vitals          Json?
+  history         Json?
+  medications     Json?
+  allergies       Json?
+  missingInfo     Json?
+  safetySignals   Json?
+  triageCategory  TriageCategory?
+  triageConfidence Float?
+  modelVersions   Json?
+  createdAt       DateTime @default(now())
+
+  conversation    AIConversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId, turnNumber])
+  @@map("patient_state_snapshots")
+}
+
+// ============================================================
+// CCTV
+// ============================================================
+
+model CCTVDevice {
+  id            String   @id @default(uuid())
+  deviceCode    String   @unique
+  hospitalId    String
+  name          String
+  location      String?
+  ipAddress     String?
+  isActive      Boolean  @default(true)
+  isMock        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  hospital      Hospital        @relation(fields: [hospitalId], references: [id])
+  zones         CCTVZone[]
+  occupancyEvents CCTVOccupancyEvent[]
+
+  @@map("cctv_devices")
+}
+
+model CCTVZone {
+  id          String   @id @default(uuid())
+  zoneCode    String   @unique
+  deviceId    String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  device          CCTVDevice        @relation(fields: [deviceId], references: [id])
+  bedMappings     BedCameraMapping[]
+  occupancyEvents CCTVOccupancyEvent[]
+
+  @@map("cctv_zones")
+}
+
+model BedCameraMapping {
+  id        String @id @default(uuid())
+  bedId     String
+  zoneId    String
+  isActive  Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  bed       Bed      @relation(fields: [bedId], references: [id])
+  zone      CCTVZone @relation(fields: [zoneId], references: [id])
+
+  @@unique([bedId, zoneId])
+  @@map("bed_camera_mappings")
+}
+
+model CCTVOccupancyEvent {
+  id           String              @id @default(uuid())
+  deviceId     String
+  zoneId       String?
+  bedId        String?             // bedCode (not FK — might be unmapped)
+  occupancy    CCTVOccupancyStatus
+  confidence   Float               @default(0.0)
+  isProcessed  Boolean             @default(false)
+  isMock       Boolean             @default(true)
+  receivedAt   DateTime            @default(now())
+  createdAt    DateTime            @default(now())
+
+  device       CCTVDevice          @relation(fields: [deviceId], references: [id])
+  zone         CCTVZone?           @relation(fields: [zoneId], references: [id])
+  discrepancy  CCTVDiscrepancy?
+
+  @@index([deviceId, isProcessed])
+  @@map("cctv_occupancy_events")
+}
+
+model CCTVDiscrepancy {
+  id              String  @id @default(uuid())
+  eventId         String  @unique
+  bedCode         String
+  cctvStatus      CCTVOccupancyStatus
+  authoritativeStatus BedStatus
+  confidence      Float
+  isResolved      Boolean @default(false)
+  resolvedBy      String?  // userId
+  resolvedAt      DateTime?
+  resolution      String?  // CONFIRMED_CCTV, CONFIRMED_AUTHORITATIVE, MANUAL_OVERRIDE
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  event           CCTVOccupancyEvent @relation(fields: [eventId], references: [id])
+
+  @@index([isResolved])
+  @@map("cctv_discrepancies")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id          String             @id @default(uuid())
+  userId      String
+  type        NotificationType
+  title       String
+  body        String
+  data        Json?
+  status      NotificationStatus @default(PENDING)
+  channel     NotificationChannel @default(IN_APP)
+  readAt      DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  user        User               @relation(fields: [userId], references: [id])
+
+  @@index([userId, status])
+  @@map("notifications")
+}
+
+// ============================================================
+// AUDIT
+// ============================================================
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?  // userId (null for system events)
+  actorRole  String?
+  action     String   // BED_STATUS_CHANGED, PATIENT_CHECKED_IN, etc.
+  entity     String   // e.g. "Bed", "Appointment"
+  entityId   String?
+  oldValue   Json?
+  newValue   Json?
+  reason     String?
+  requestId  String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  actor      User?    @relation(fields: [actorId], references: [id])
+
+  @@index([entity, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================
+// ANALYTICS
+// ============================================================
+
+model AnalyticsSnapshot {
+  id             String   @id @default(uuid())
+  hospitalId     String?
+  districtId     String?
+  stateId        String?
+  snapshotDate   DateTime @db.Date
+  snapshotHour   Int?
+  data           Json     // Flexible analytics payload
+  createdAt      DateTime @default(now())
+
+  hospital       Hospital? @relation(fields: [hospitalId], references: [id])
+
+  @@index([hospitalId, snapshotDate])
+  @@index([districtId, snapshotDate])
+  @@map("analytics_snapshots")
+}
+
+// ============================================================
+// LOCATION
+// ============================================================
+
+model LocationRequest {
+  id          String   @id @default(uuid())
+  patientId   String?
+  latitude    Float?
+  longitude   Float?
+  accuracy    Float?
+  address     String?
+  isManual    Boolean  @default(false)
+  sessionRef  String?
+  createdAt   DateTime @default(now())
+
+  patient     PatientProfile? @relation(fields: [patientId], references: [id])
+
+  @@map("location_requests")
+}
+
+model GeocodingCache {
+  id          String   @id @default(uuid())
+  query       String   @unique
+  result      Json
+  provider    String   @default("nominatim")
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([query])
+  @@map("geocoding_cache")
+}
+
+model SystemEvent {
+  id          String   @id @default(uuid())
+  eventType   String
+  payload     Json?
+  source      String?
+  createdAt   DateTime @default(now())
+
+  @@index([eventType])
+  @@map("system_events")
+}

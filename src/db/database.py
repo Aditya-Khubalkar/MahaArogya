@@ -11,7 +11,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-DEFAULT_DB_PATH = Path("c:/MahaArogya/data/mahaarogya.db")
+# Derive project root portably (works in Docker, Linux, Windows)
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DEFAULT_DB_PATH = _PROJECT_ROOT / "data" / "mahaarogya.db"
+_DEFAULT_CSV_PATH = _PROJECT_ROOT / "data" / "source_registry.csv"
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 
 
@@ -50,7 +53,7 @@ class LocalDatabase:
             conn.executescript(ddl)
             conn.commit()
 
-    def seed_registry_from_csv(self, csv_path: Path = Path("c:/MahaArogya/data/source_registry.csv")):
+    def seed_registry_from_csv(self, csv_path: Path = _DEFAULT_CSV_PATH):
         if not csv_path.exists():
             return
         conn = self.get_connection()

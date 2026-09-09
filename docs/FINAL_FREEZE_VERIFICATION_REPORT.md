@@ -1,0 +1,45 @@
+# FINAL FREEZE VERIFICATION REPORT
+
+## Checks
+- **5060_integrity**: PASS
+- **3050_isolation**: PASS
+- **bridge**: PASS
+- **state_propagation**: NOT VERIFIED
+- **database**: PASS
+- **redis**: PASS
+- **voice**: NOT VERIFIED
+- **frontend**: PASS
+- **failsafe**: NOT VERIFIED
+- **5060_regression**: PASS
+- **3050_regression**: PASS
+- **integration_regression**: PASS
+- **startup**: PASS
+- **production_integrity**: PASS
+
+## Evidence
+- [5060_integrity] => PASS (Single hash correctly matched MAHAAROGYA_FINAL_ACCEPTANCE_AUDIT.py)
+- [production_integrity] => PASS (Single hash correctly matched MAHAAROGYA_FINAL_ACCEPTANCE_AUDIT.py)
+- Changed files inside integration boundary: ['M frontend/app/conversation/page.tsx', ' M frontend/app/reception/page.tsx', ' M frontend/lib/api.ts', ' M frontend/package-lock.json', ' M frontend/package.json', '?? dataset_audit_results.json', '?? docs/5060_API_FINAL_AUDIT.md', '?? docs/5060_FINAL_ACCEPTANCE_AUDIT.md', '?? docs/5060_FINAL_VALIDATION.md', '?? docs/5060_INDEPENDENT_FORENSIC_AUDIT.md', '?? docs/5060_POST_FIX_FORENSIC_AUDIT.md', '?? docs/5060_TRUST_VERIFICATION.md', '?? docs/AI_ML_WORKSPACE_AUDIT.md', '?? docs/AI_ML_WORKSPACE_AUDIT_TEMP.md', '?? docs/AI_PROGRESS_STATUS.md', '?? docs/ASR_DATASET_RESEARCH.md', '?? docs/ASR_DATA_INGESTION_REPORT.md', '?? docs/ASR_EXISTING_MODELS_AUDIT.md', '?? docs/ASR_REBUILD_PLAN.md', '?? docs/ASR_TRANSCRIPTION_POLICY.md', '?? docs/EXTRACTOR_AUDIT.md', '?? docs/FEATURE_COMPLETION_AUDIT.md', '?? docs/FINAL_FREEZE_VERIFICATION_REPORT.md', '?? docs/FINAL_FREEZE_VERIFICATION_RESULTS.json', '?? docs/INTEGRATION_AUDIT.md', '?? docs/INTEGRATION_MANIFEST.md', '?? docs/MAHAAROGYA_FINAL_ACCEPTANCE_AUDIT.py', '?? docs/MAHAAROGYA_FINAL_ACCEPTANCE_AUDIT.sha256', '?? docs/MAHAAROGYA_FINAL_ACCEPTANCE_AUDIT_REPORT.md', '?? docs/MAHAAROGYA_FINAL_ACCEPTANCE_AUDIT_RESULTS.json', '?? docs/NHAMCS_FEATURE_ENGINEERING_REPORT.md', '?? docs/NHAMCS_FEATURE_SCHEMA.md', '?? docs/NHAMCS_TRIAGE_DATA_AUDIT.md', '?? docs/QUESTION_DATASET_QUALITY_AUDIT.md', '?? docs/QUESTION_RANKER_INDEPENDENT_EVALUATION.md', '?? docs/QUESTION_RANKER_V2_FINAL_EVALUATION.md', '?? docs/RTX5060_3050_INTEGRATION_CONTRACT.md', '?? docs/RTX5060_INTEGRATION_READY_REPORT.md', '?? docs/TRIAGE_ADVERSARIAL_VALIDATION.md', '?? docs/TRIAGE_BASELINE_RESULTS.md', '?? docs/TRIAGE_CURRENT_STATE_AUDIT.md', '?? docs/TRIAGE_DATASET_AUDIT.md', '?? docs/TRIAGE_DATASET_RESEARCH.md', '?? docs/TRIAGE_ML_INTEGRATION.md', '?? docs/TTS_BENCHMARK_RESULTS.md', '?? docs/TTS_CURRENT_STATE_AUDIT.md', '?? docs/TTS_INTEGRATION.md', '?? docs/WHISPER_MULTILINGUAL_V1_RESULTS.md', '?? docs/WHISPER_SMOKETEST_RESULTS.md', '?? evaluation/run_fresh_fleurs_eval.py', '?? evaluation/triage_adversarial_tests.json', '?? "frontend maha/"', '?? frontend/app/dashboard/', '?? frontend/app/doctor/', '?? frontend/app/nurse/', '?? frontend/components/MapComponent.tsx', '?? integration/', '?? nhamcs_audit.json', '?? scripts/_qbank_data.json', '?? scripts/analyze_meditod.py', '?? scripts/audit_nhamcs.py', '?? scripts/audit_synthetic_dataset.py', '?? scripts/audit_triage_dataset.py', '?? scripts/benchmark_tts.py', '?? scripts/build_question_ranking_dataset.py', '?? scripts/build_synthetic_ranking_dataset.py', '?? scripts/build_triage_features.py', '?? scripts/check_f5_access.py', '?? scripts/check_licenses.py', '?? scripts/combine_datasets.py', '?? scripts/convert_stata.py', '?? scripts/download_final_tts_models.py', '?? scripts/download_nhamcs.py', '?? scripts/download_tts_models.py', '?? scripts/eval_indicwhisper.py', '?? scripts/evaluate_asr_pipeline.py', '?? scripts/evaluate_question_ranker.py', '?? scripts/evaluate_question_ranker_v2.py', '?? scripts/evaluate_v1_vs_v2.py', '?? scripts/evaluate_voice_integration.py', '?? scripts/extract_rfv_dict.py', '?? scripts/final_v2_eval.py', '?? scripts/gen_qbank.py', '?? scripts/generate_adversarial_tests.py', '?? scripts/generate_asr_benchmark.py', '?? scripts/generate_extraction_dataset.py', '?? scripts/independent/', '?? scripts/independent_acceptance_audit.py', '?? scripts/rigorous_eval.py', '?? scripts/run_extraction_eval.py', '?? scripts/run_triage_adversarial.py', '?? scripts/simulate_realistic.py', '?? scripts/test_ml_integration.py', '?? scripts/train_question_ranker.py', '?? scripts/train_question_ranker_v2.py', '?? scripts/train_triage_baselines.py', '?? test.wav', '?? test_mr.wav', '?? tests/test_3050_contract.py', '?? tests/test_api.py', '?? tests/test_api_real_http.py', '?? tests/test_tts_service.py']
+- [3050_isolation] => PASS (Git status confirms no modifications outside integration/rtx3050)
+- [bridge] => PASS (HTTP 200, Triage=ROUTINE)
+- [state_propagation] => NOT VERIFIED (direct in-memory PatientState inspection is outside the current read-only freeze boundary.)
+- [database] => PASS (INSERT/SELECT/DELETE cycle succeeded)
+- [redis] => PASS (SET/GET/DELETE verified correctly)
+- [voice] => NOT VERIFIED (No authoritative audio fixture found in the repository.)
+- [frontend] => PASS (Frontend server responded HTTP 200)
+- [failsafe] => NOT VERIFIED (Requires non-destructive testing via configuration which is not currently available without modifying production.)
+- [5060_regression] => PASS (Returncode 0. Counts: {'passed': 29, 'failed': 0, 'errors': 0})
+- [3050_regression] => PASS (Returncode 0. Counts: {'passed': 20, 'failed': 0, 'errors': 0})
+- [integration_regression] => PASS (Returncode 0. Counts: {'passed': 1, 'failed': 0, 'errors': 0})
+- [startup] => PASS (All required ports 5432, 6379, 8000, 8001, 3000 are reachable)
+
+## Scope Note
+YOLO/CCTV is explicitly outside this freeze scope and its checks have been removed.
+state_propagation: NOT VERIFIED — direct in-memory PatientState inspection is outside the current read-only freeze boundary.
+
+============================================================
+FINAL FREEZE DECISION
+============================================================
+
+OVERALL: READY TO FREEZE
+

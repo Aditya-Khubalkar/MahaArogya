@@ -5,9 +5,16 @@ Enforces strict security boundaries on API endpoints.
 """
 
 from enum import Enum
+import os
+from datetime import datetime, timedelta
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
+from jose import JWTError, jwt
+
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "demo-fallback-secret-key-1234")
+JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
 
 
 class UserRole(str, Enum):
@@ -105,6 +112,7 @@ class AuthUser(BaseModel):
         return perm in allowed
 
 
+# DEMO MODE ONLY — replace with DB in production
 # Authentic User Registry Directory for User Lookup
 MOCK_USER_REGISTRY: dict[str, AuthUser] = {
     "reception_staff_01": AuthUser(user_id="reception_staff_01", name="Staff Kulkarni", role=UserRole.RECEPTION, hospital_id="hosp_mumbai_01"),
@@ -114,6 +122,30 @@ MOCK_USER_REGISTRY: dict[str, AuthUser] = {
     "hospital_head_01": AuthUser(user_id="hospital_head_01", name="Dr. Mehta", role=UserRole.HOSPITAL_HEAD, hospital_id="hosp_mumbai_01"),
 }
 
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+    return encoded_jwt
+
+def verify_access_token(token: str):
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+        return user_id
+    except JWTError:
+        return None
+
+
+from fastapi.security import OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/demo-login")
 
 def get_authenticated_user(user_id: Optional[str]) -> AuthUser:
     """Resolves AuthUser from registry; raises HTTP 401 if missing or invalid."""
@@ -131,3 +163,14 @@ def get_authenticated_user(user_id: Optional[str]) -> AuthUser:
         )
 
     return user
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> AuthUser:
+    user_id = verify_access_token(token)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return get_authenticated_user(user_id)
+
