@@ -198,11 +198,17 @@ class MedicalExtractor:
                             if sym_code not in negated_symptoms:
                                 negated_symptoms.append(sym_code)
                         else:
+                            sev = "moderate"
+                            if any(w in text_lower for w in ["severe", "khup", "खूप", "तीव्र", "acute", "crushing"]):
+                                sev = "severe"
+                            elif any(w in text_lower for w in ["mild", "kumi", "कमी", "सौम्य", "slight"]):
+                                sev = "mild"
+
                             detail = SymptomDetail(
                                 present=True,
                                 duration=extracted_duration,
                                 frequency=extracted_freq,
-                                severity="severe" if "severe" in text_lower or "khup" in text_lower or "खूप" in text_lower or "तीव्र" in text_lower or "acute" in text_lower or "crushing" in text_lower else "moderate"
+                                severity=sev
                             )
                             extracted_symptoms[sym_code] = detail
                         break
